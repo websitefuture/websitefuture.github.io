@@ -55,18 +55,46 @@ body {
 .intro p { color: var(--ink-soft); max-width: 62ch; margin: 0 auto; font-size: clamp(16px, 1.6vw, 20px); line-height: 1.65; position: relative; z-index: 2; }
 .intro .hint { margin-top: 28px; color: var(--lime); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; position: relative; z-index: 2; }
 
-.floaters { position: absolute; inset: -10% -6%; pointer-events: none; z-index: 1; overflow: visible; }
+/* fixed to the viewport (not confined to .intro) so these stay visible over every
+   section as you scroll, not just the hero. perspective gives each floater's
+   rotateX/rotateY (set in JS, driven by cursor position) real 3D depth. */
+.floaters { position: fixed; inset: -10% -6%; pointer-events: none; z-index: 40; overflow: visible; perspective: 900px; }
 .floater {
   position: absolute; top: var(--fy); left: var(--fx); font-size: var(--fs);
-  animation: fly-around var(--fdur) ease-in-out var(--fdelay) infinite;
   filter: drop-shadow(0 14px 22px rgba(0,0,0,0.45));
+  will-change: transform; pointer-events: auto; cursor: pointer;
+  /* no transition by default -- catching one should feel instant, not faded.
+     .respawn-in (added only for the reappear) is what makes THAT part smooth. */
 }
-@keyframes fly-around {
-  0%   { transform: translate(0, 0) rotate(0deg); }
-  22%  { transform: translate(var(--fdx), calc(var(--fdy) * -0.7)) rotate(calc(var(--frot) * 0.7 * 1deg)); }
-  48%  { transform: translate(calc(var(--fdx) * -0.5), var(--fdy)) rotate(calc(var(--frot) * -1deg)); }
-  74%  { transform: translate(calc(var(--fdx) * 0.8), calc(var(--fdy) * -0.4)) rotate(calc(var(--frot) * 0.4 * 1deg)); }
-  100% { transform: translate(0, 0) rotate(0deg); }
+.floater.respawn-in { transition: opacity 0.3s ease; }
+
+.score-readout {
+  position: fixed; top: 16px; right: 20px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #e3e2e2;
+  letter-spacing: 0.05em; pointer-events: none; z-index: 999;
+  background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 999px;
+}
+.score-readout b { color: var(--lime, #c3f400); }
+
+.cursor-glow {
+  position: fixed; top: 0; left: 0; width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; mix-blend-mode: difference;
+  box-shadow: 0 0 14px 3px rgba(255,255,255,0.6), 0 0 34px 10px rgba(255,255,255,0.25);
+  pointer-events: none; z-index: 1000;
+  transform: translate(-50%, -50%); will-change: transform;
+  opacity: 0; transition: opacity 0.3s ease, width 0.2s ease, height 0.2s ease;
+}
+.cursor-glow.active { opacity: 1; }
+.cursor-glow.big { width: 34px; height: 34px; }
+@media (hover: hover) and (pointer: fine) {
+  html.custom-cursor, html.custom-cursor * { cursor: none !important; }
+}
+
+.hint-readout {
+  position: fixed; left: 20px; bottom: 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #e3e2e2;
+  letter-spacing: 0.03em; pointer-events: none; z-index: 999; opacity: 0.7;
+  background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 999px;
 }
 
 .coord-readout {
@@ -104,7 +132,8 @@ body {
 }
 
 .frame {
-  position: relative; border-radius: 14px; overflow: hidden;
+  position: relative; z-index: 45; /* above .floaters (z:40) so they duck behind the real site previews, never covering them */
+  border-radius: 14px; overflow: hidden;
   border: 1px solid var(--border); background: var(--surface);
   aspect-ratio: 16 / 10;
   box-shadow: 0 40px 80px -30px rgba(0,0,0,0.6);
@@ -149,13 +178,14 @@ body {
 
 <h2 class="sr-only">websites I made -- a scroll-driven showcase of real local business websites, the first three revealing vertically and the rest sliding through a pinned horizontal section</h2>
 
+<div class="floaters" aria-hidden="true">
+  <span class="floater" style="--fx:6%; --fy:10%; --fs:58px; --fdx:90px; --fdy:-70px; --frot:22; --fdur:9s; --fdelay:0s;">&#127836;</span>
+  <span class="floater" style="--fx:84%; --fy:6%; --fs:66px; --fdx:-100px; --fdy:80px; --frot:-18; --fdur:10.5s; --fdelay:0.6s;">&#127817;</span>
+  <span class="floater" style="--fx:2%; --fy:64%; --fs:50px; --fdx:80px; --fdy:90px; --frot:26; --fdur:11s; --fdelay:1.4s;">&#127817;</span>
+  <span class="floater" style="--fx:90%; --fy:60%; --fs:54px; --fdx:-90px; --fdy:-80px; --frot:-22; --fdur:9.5s; --fdelay:0.9s;">&#127836;</span>
+</div>
+
 <div class="intro">
-  <div class="floaters" aria-hidden="true">
-    <span class="floater" style="--fx:6%; --fy:10%; --fs:58px; --fdx:90px; --fdy:-70px; --frot:22; --fdur:9s; --fdelay:0s;">&#127836;</span>
-    <span class="floater" style="--fx:84%; --fy:6%; --fs:66px; --fdx:-100px; --fdy:80px; --frot:-18; --fdur:10.5s; --fdelay:0.6s;">&#127817;</span>
-    <span class="floater" style="--fx:2%; --fy:64%; --fs:50px; --fdx:80px; --fdy:90px; --frot:26; --fdur:11s; --fdelay:1.4s;">&#127817;</span>
-    <span class="floater" style="--fx:90%; --fy:60%; --fs:54px; --fdx:-90px; --fdy:-80px; --frot:-22; --fdur:9.5s; --fdelay:0.9s;">&#127836;</span>
-  </div>
   <div class="eyebrow">websites i made &mdash; real local business sites, built and shipped</div>
   <h1 class="serif">websites I made</h1>
   <p>A creative website I made to keep track of all my websites.</p>
@@ -163,6 +193,8 @@ body {
 </div>
 
 <div class="coord-readout" id="coordReadout">0000 X 0000 Y</div>
+<div class="score-readout" id="scoreReadout">CAUGHT <b>00</b></div>
+<div class="hint-readout">hint: tap the watermelons and noodles</div>
 
 <div class="entries" id="entries">
   <div class="card" id="card0">
@@ -523,6 +555,104 @@ body {
     }
   }
 
+  // scattered objects that tilt in 3D toward the cursor -- the technique behind
+  // Illoca's "Interactive Blocks" hero (Awwwards, by Unseen Studio): each object
+  // independently reads its offset from the mouse and rotates toward it, on top
+  // of its own gentle continuous drift.
+  var floaters = Array.prototype.slice.call(document.querySelectorAll('.floater'));
+  var mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 3;
+  var startTime = performance.now();
+
+  function renderFloaters() {
+    var tSec = (performance.now() - startTime) / 1000;
+    floaters.forEach(function (f) {
+      var cs = getComputedStyle(f);
+      var dx = parseFloat(cs.getPropertyValue('--fdx')) || 60;
+      var dy = parseFloat(cs.getPropertyValue('--fdy')) || 60;
+      var rot = parseFloat(cs.getPropertyValue('--frot')) || 15;
+      var dur = parseFloat(cs.getPropertyValue('--fdur')) || 8;
+      var delay = parseFloat(cs.getPropertyValue('--fdelay')) || 0;
+      var phase = ((tSec + delay) / dur) * Math.PI * 2;
+      var driftX = Math.sin(phase) * dx * 0.6;
+      var driftY = Math.cos(phase * 0.85) * dy * 0.6;
+      var driftRot = Math.sin(phase * 0.6) * rot * 0.3;
+
+      var rect = f.getBoundingClientRect();
+      var cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+      var tiltY = clamp((mouseX - cx) / 320, -1, 1) * 24;
+      var tiltX = clamp(-(mouseY - cy) / 320, -1, 1) * 24;
+
+      f.style.transform = 'translate(' + driftX.toFixed(1) + 'px,' + driftY.toFixed(1) + 'px) ' +
+        'rotateX(' + tiltX.toFixed(1) + 'deg) rotateY(' + tiltY.toFixed(1) + 'deg) rotate(' + driftRot.toFixed(1) + 'deg)';
+    });
+  }
+
+  // click a floater to "catch" it -- disappears instantly, adds to the score, plays
+  // a synthesized pop (no audio file needed), then reappears at a new random spot
+  // (possibly as the other food) after a beat, fading back in.
+  var EMOJI_POOL = ['🍜', '🍉']; // noodles, watermelon -- keep to just these two
+  var score = 0;
+  var scoreValEl = document.querySelector('#scoreReadout b');
+
+  var audioCtx = null;
+  function playPop() {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var t = audioCtx.currentTime;
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, t);
+      osc.frequency.exponentialRampToValueAtTime(220, t + 0.09);
+      gain.gain.setValueAtTime(0.18, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(t);
+      osc.stop(t + 0.13);
+    } catch (e) { /* audio unsupported/blocked -- silently skip */ }
+  }
+
+  function respawnFloater(f) {
+    f.style.setProperty('--fx', (4 + Math.random() * 88).toFixed(1) + '%');
+    f.style.setProperty('--fy', (6 + Math.random() * 78).toFixed(1) + '%');
+    f.textContent = EMOJI_POOL[Math.floor(Math.random() * EMOJI_POOL.length)];
+    f.style.pointerEvents = 'auto';
+    f.classList.add('respawn-in'); // enables the fade-in transition, just for this reveal
+    void f.offsetWidth; // force reflow so the transition class is applied before opacity flips
+    f.style.opacity = '1';
+  }
+
+  floaters.forEach(function (f) {
+    f.addEventListener('click', function () {
+      if (f.style.opacity === '0') return; // mid-respawn, ignore extra clicks
+      f.classList.remove('respawn-in'); // no transition class -> opacity change is instant
+      f.style.opacity = '0';
+      f.style.pointerEvents = 'none';
+      score++;
+      if (scoreValEl) scoreValEl.textContent = String(score).padStart(2, '0');
+      playPop();
+      setTimeout(function () { respawnFloater(f); }, 1100);
+    });
+  });
+
+  // white glowing cursor orb -- mix-blend-mode:difference stays legible over any
+  // background; real cursor hidden via html.custom-cursor so this fully replaces it.
+  var glow = document.createElement('div');
+  glow.className = 'cursor-glow';
+  document.body.appendChild(glow);
+  document.documentElement.classList.add('custom-cursor');
+  var glowX = mouseX, glowY = mouseY;
+
+  window.addEventListener('mousemove', function (e) {
+    mouseX = e.clientX; mouseY = e.clientY;
+    glow.classList.add('active');
+  }, { passive: true });
+
+  document.querySelectorAll('a, button').forEach(function (el) {
+    el.addEventListener('mouseenter', function () { glow.classList.add('big'); });
+    el.addEventListener('mouseleave', function () { glow.classList.remove('big'); });
+  });
+
   function tick() {
     if (wheelHijack) {
       smoothY += (rawY - smoothY) * LERP;
@@ -535,6 +665,11 @@ body {
     renderCards();
     renderHz(smoothY);
     finishBlend();
+    renderFloaters();
+
+    glowX += (mouseX - glowX) * 0.16;
+    glowY += (mouseY - glowY) * 0.16;
+    glow.style.transform = 'translate(' + glowX.toFixed(1) + 'px,' + glowY.toFixed(1) + 'px) translate(-50%,-50%)';
   }
   setInterval(tick, 16);
   tick();
