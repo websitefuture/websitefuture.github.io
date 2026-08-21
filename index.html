@@ -487,7 +487,13 @@ body {
   'use strict';
 
   var narrow = window.matchMedia('(max-width: 760px)').matches;
-  var cards = Array.prototype.slice.call(document.querySelectorAll('.entries .card'));
+  // cache each card's document-relative offset once (and on resize) instead of calling
+  // getBoundingClientRect() on every card every 16ms tick -- that forces a synchronous
+  // layout recalculation each time, 60 times a second, across every card on the page,
+  // which was the real reason the whole page felt sluggish rather than just slow to load.
+  var cardData = Array.prototype.slice.call(document.querySelectorAll('.entries .card')).map(function (el, i) {
+    return { el: el, offsetTop: 0, height: 0, i: i };
+  });
 
   // "enter" gate -- staged like makemepulse.com's intros: a held loading beat (their
   // site uses a vertical bar) before the wordmark reveals out of a blur, not everything
@@ -573,22 +579,30 @@ body {
   // pinned horizontal-scroll section (ghost-pitcher.com's filmstrip mechanic)
   var hzTrack = document.getElementById('hzTrack');
   var hzRow = document.getElementById('hzRow');
+  var hzPin = hzTrack ? hzTrack.querySelector('.hz-pin') : null;
   var hzCounter = document.getElementById('hzCounter');
-  var hzCards = hzRow ? Array.prototype.slice.call(hzRow.children) : [];
+  var hzCardData = hzRow ? Array.prototype.slice.call(hzRow.children).map(function (el, i) {
+    return { el: el, offsetLeft: 0, width: 0, i: i };
+  }) : [];
   var hzCardColors = HORIZONTAL_COLORS.map(hexToOklch);
-  var hzTrackTop = 0, hzMaxScrollable = 1, hzMaxShift = 0;
+  var hzTrackTop = 0, hzMaxScrollable = 1, hzMaxShift = 0, hzPinLeft = 0;
 
   function measure() {
     maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    cardData.forEach(function (d) { d.offsetTop = d.el.offsetTop; d.height = d.el.offsetHeight; });
     if (hzTrack) {
       var vh = window.innerHeight;
       hzTrackTop = hzTrack.getBoundingClientRect().top + window.scrollY;
       hzMaxScrollable = Math.max(1, hzTrack.offsetHeight - vh);
       hzMaxShift = Math.max(0, hzRow.scrollWidth - window.innerWidth);
+      hzPinLeft = hzPin.getBoundingClientRect().left;
+      hzCardData.forEach(function (d) { d.offsetLeft = d.el.offsetLeft; d.width = d.el.offsetWidth; });
     }
+    measureFloaterBases(); // defined later in this file, but hoisted -- safe to call here
   }
-  measure();
   window.addEventListener('resize', measure);
+  // measure() itself is called once, at the very end of this IIFE, after every
+  // section (including floaters) has finished setting up its own cached data.
 
   var rawY = window.scrollY;
   var smoothY = rawY;
@@ -643,22 +657,26 @@ body {
     document.body.style.backgroundColor = oklchToRgbString(mixL, mixC, mixH);
   }
 
-  function renderCards() {
+  function renderCards(scrollY) {
     var vh = window.innerHeight;
     var startEdge = vh * 0.88;  // card top this far down viewport -> reveal begins
     var endEdge = vh * 0.42;    // card top this far down viewport -> fully revealed
 
-    cards.forEach(function (card, i) {
-      var rect = card.getBoundingClientRect();
-      var t = smoothstep(startEdge, endEdge, rect.top);
-      card.style.opacity = t.toFixed(3);
-      card.style.transform = 'translateY(' + lerp(48, 0, t).toFixed(1) + 'px) scale(' + lerp(0.96, 1, t).toFixed(4) + ')';
+    cardData.forEach(function (d) {
+      // top-relative-to-viewport, derived from the cached document offset + our own
+      // tracked scroll position -- equivalent to getBoundingClientRect().top here since
+      // tick() already called scrollTo(scrollY) before this runs, but with no forced
+      // synchronous layout read on every card, every frame.
+      var top = d.offsetTop - scrollY;
+      var t = smoothstep(startEdge, endEdge, top);
+      d.el.style.opacity = t.toFixed(3);
+      d.el.style.transform = 'translateY(' + lerp(48, 0, t).toFixed(1) + 'px) scale(' + lerp(0.96, 1, t).toFixed(4) + ')';
 
       // background tint weighted by how close the card is to viewport center
-      var center = rect.top + rect.height / 2;
+      var center = top + d.height / 2;
       var dist = Math.abs(center - vh / 2) / vh;
       var w = Math.max(0, 1 - dist) * t;
-      addBlendContribution(w, cardColors[i]);
+      addBlendContribution(w, cardColors[d.i]);
     });
   }
 
@@ -666,7 +684,8 @@ body {
     if (!hzTrack) return;
     var scrolledIntoTrack = clamp(scrollY - hzTrackTop, 0, hzMaxScrollable);
     var progress = scrolledIntoTrack / hzMaxScrollable;
-    hzRow.style.transform = 'translateX(' + (-hzMaxShift * progress).toFixed(1) + 'px)';
+    var shift = -hzMaxShift * progress;
+    hzRow.style.transform = 'translateX(' + shift.toFixed(1) + 'px)';
 
     // only contribute to the color blend while the pinned section is actually
     // engaged (progress in [0,1] AND we've scrolled at least into the track)
@@ -674,18 +693,21 @@ body {
 
     var vw = window.innerWidth;
     var activeIdx = 0, bestDist = Infinity;
-    hzCards.forEach(function (card, i) {
-      var rect = card.getBoundingClientRect();
-      var dist = Math.abs((rect.left + rect.width / 2) - vw / 2);
-      if (dist < bestDist) { bestDist = dist; activeIdx = i; }
+    hzCardData.forEach(function (d) {
+      // same idea as renderCards -- left-relative-to-viewport from the cached offset,
+      // the hz-pin's own (stable) viewport position, and the translateX we just applied
+      // ourselves, instead of calling getBoundingClientRect() on all 11 cards every tick.
+      var left = hzPinLeft + d.offsetLeft + shift;
+      var dist = Math.abs((left + d.width / 2) - vw / 2);
+      if (dist < bestDist) { bestDist = dist; activeIdx = d.i; }
       if (engaged) {
         var w = Math.max(0, 1 - dist / vw);
-        addBlendContribution(w, hzCardColors[i]);
+        addBlendContribution(w, hzCardColors[d.i]);
       }
     });
     if (hzCounter) {
       hzCounter.innerHTML = String(activeIdx + 1).padStart(2, '0') +
-        ' <span style="opacity:0.5">/ ' + String(hzCards.length).padStart(2, '0') + '</span>';
+        ' <span style="opacity:0.5">/ ' + String(hzCardData.length).padStart(2, '0') + '</span>';
     }
   }
 
@@ -693,30 +715,51 @@ body {
   // Illoca's "Interactive Blocks" hero (Awwwards, by Unseen Studio): each object
   // independently reads its offset from the mouse and rotates toward it, on top
   // of its own gentle continuous drift.
-  var floaters = Array.prototype.slice.call(document.querySelectorAll('.floater'));
+  //
+  // --fdx/--fdy/--frot/--fdur/--fdelay never change after load, and each floater's
+  // *base* screen position only changes on resize or when it respawns -- so all of
+  // that is read once (via getComputedStyle/offsetLeft, both real layout work) and
+  // cached, instead of re-querying it on every single one of these 60-times-a-second
+  // ticks. The old version called getComputedStyle AND getBoundingClientRect on every
+  // floater every tick, for values that were almost never actually changing.
   var mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 3;
   var startTime = performance.now();
+  var floaterData = Array.prototype.slice.call(document.querySelectorAll('.floater')).map(function (el) {
+    var cs = getComputedStyle(el);
+    return {
+      el: el,
+      dx: parseFloat(cs.getPropertyValue('--fdx')) || 60,
+      dy: parseFloat(cs.getPropertyValue('--fdy')) || 60,
+      rot: parseFloat(cs.getPropertyValue('--frot')) || 15,
+      dur: parseFloat(cs.getPropertyValue('--fdur')) || 8,
+      delay: parseFloat(cs.getPropertyValue('--fdelay')) || 0,
+      baseCx: 0, baseCy: 0
+    };
+  });
+  var floatersBox = document.querySelector('.floaters');
+
+  function measureFloaterBases() {
+    if (!floaterData.length) return;
+    var boxRect = floatersBox.getBoundingClientRect();
+    floaterData.forEach(function (d) {
+      d.baseCx = boxRect.left + d.el.offsetLeft + d.el.offsetWidth / 2;
+      d.baseCy = boxRect.top + d.el.offsetTop + d.el.offsetHeight / 2;
+    });
+  }
 
   function renderFloaters() {
     var tSec = (performance.now() - startTime) / 1000;
-    floaters.forEach(function (f) {
-      var cs = getComputedStyle(f);
-      var dx = parseFloat(cs.getPropertyValue('--fdx')) || 60;
-      var dy = parseFloat(cs.getPropertyValue('--fdy')) || 60;
-      var rot = parseFloat(cs.getPropertyValue('--frot')) || 15;
-      var dur = parseFloat(cs.getPropertyValue('--fdur')) || 8;
-      var delay = parseFloat(cs.getPropertyValue('--fdelay')) || 0;
-      var phase = ((tSec + delay) / dur) * Math.PI * 2;
-      var driftX = Math.sin(phase) * dx * 0.6;
-      var driftY = Math.cos(phase * 0.85) * dy * 0.6;
-      var driftRot = Math.sin(phase * 0.6) * rot * 0.3;
+    floaterData.forEach(function (d) {
+      var phase = ((tSec + d.delay) / d.dur) * Math.PI * 2;
+      var driftX = Math.sin(phase) * d.dx * 0.6;
+      var driftY = Math.cos(phase * 0.85) * d.dy * 0.6;
+      var driftRot = Math.sin(phase * 0.6) * d.rot * 0.3;
 
-      var rect = f.getBoundingClientRect();
-      var cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
+      var cx = d.baseCx + driftX, cy = d.baseCy + driftY;
       var tiltY = clamp((mouseX - cx) / 320, -1, 1) * 24;
       var tiltX = clamp(-(mouseY - cy) / 320, -1, 1) * 24;
 
-      f.style.transform = 'translate(' + driftX.toFixed(1) + 'px,' + driftY.toFixed(1) + 'px) ' +
+      d.el.style.transform = 'translate(' + driftX.toFixed(1) + 'px,' + driftY.toFixed(1) + 'px) ' +
         'rotateX(' + tiltX.toFixed(1) + 'deg) rotateY(' + tiltY.toFixed(1) + 'deg) rotate(' + driftRot.toFixed(1) + 'deg)';
     });
   }
@@ -746,7 +789,8 @@ body {
     } catch (e) { /* audio unsupported/blocked -- silently skip */ }
   }
 
-  function respawnFloater(f) {
+  function respawnFloater(d) {
+    var f = d.el;
     f.style.setProperty('--fx', (4 + Math.random() * 88).toFixed(1) + '%');
     f.style.setProperty('--fy', (6 + Math.random() * 78).toFixed(1) + '%');
     f.textContent = EMOJI_POOL[Math.floor(Math.random() * EMOJI_POOL.length)];
@@ -754,10 +798,12 @@ body {
     f.classList.add('respawn-in'); // enables the fade-in transition, just for this reveal
     void f.offsetWidth; // force reflow so the transition class is applied before opacity flips
     f.style.opacity = '1';
+    measureFloaterBases(); // --fx/--fy just moved -- refresh the cached base position
   }
 
-  floaters.forEach(function (f) {
-    f.addEventListener('click', function () {
+  floaterData.forEach(function (d) {
+    d.el.addEventListener('click', function () {
+      var f = d.el;
       if (f.style.opacity === '0') return; // mid-respawn, ignore extra clicks
       f.classList.remove('respawn-in'); // no transition class -> opacity change is instant
       f.style.opacity = '0';
@@ -765,7 +811,7 @@ body {
       score++;
       if (scoreValEl) scoreValEl.textContent = String(score).padStart(2, '0');
       playPop();
-      setTimeout(function () { respawnFloater(f); }, 1100);
+      setTimeout(function () { respawnFloater(d); }, 1100);
     });
   });
 
@@ -796,7 +842,7 @@ body {
       smoothY = window.scrollY;
     }
     resetBlend();
-    renderCards();
+    renderCards(smoothY);
     renderHz(smoothY);
     finishBlend();
     renderFloaters();
@@ -815,6 +861,8 @@ body {
     }
   }
   var frameCount = 0;
+  measure(); // now that cardData/hzCardData/floaterData all exist, do the one real
+             // layout-reading pass up front and cache it -- tick() never needs to again.
   setInterval(tick, 16);
   tick();
 
