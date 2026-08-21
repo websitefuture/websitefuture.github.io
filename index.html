@@ -40,40 +40,83 @@ body {
 }
 .serif { font-family: 'Bodoni Moda', serif; }
 
-/* full-screen "enter" gate, staged like makemepulse.com's intros: a held loading
-   beat (their site uses a vertical bar) before the wordmark reveals out of a blur,
-   not everything appearing at once. */
+/* full-screen "enter" gate: a tavern's double doors, lit by firelight, that swing
+   open on their hinges when clicked -- staged like makemepulse.com's intros (a held
+   loading beat before anything reveals), reskinned into a tavern threshold. */
 .enter-gate {
   position: fixed; inset: 0; z-index: 500;
-  background: var(--bg);
+  background: #0d0805;
+  cursor: pointer; overflow: hidden;
+  perspective: 1400px;
+  --tavern-glow: #e8a33d;
+  --tavern-ink: #f5e3c4;
+}
+.enter-gate[hidden] { display: none; }
+
+.tavern-door {
+  position: absolute; top: 0; width: 50%; height: 100%; z-index: 1;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.18) 0 3px, transparent 3px 30px),
+    linear-gradient(180deg, #3d2617 0%, #201409 55%, #160d05 100%);
+  box-shadow: inset 0 0 90px rgba(0,0,0,0.65);
+  backface-visibility: hidden;
+  transition: transform 1.1s cubic-bezier(.76,0,.24,1);
+}
+.tavern-door-left { left: 0; transform-origin: left center; border-right: 2px solid rgba(0,0,0,0.55); }
+.tavern-door-right { right: 0; transform-origin: right center; border-left: 2px solid rgba(0,0,0,0.55); }
+.enter-gate.leaving .tavern-door-left { transform: rotateY(-100deg); }
+.enter-gate.leaving .tavern-door-right { transform: rotateY(100deg); }
+
+/* warm light bleeding through the crack between the doors, flickering like firelight */
+.tavern-glow {
+  position: absolute; left: 50%; top: 50%; z-index: 2;
+  width: 8px; height: 75%; transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center, rgba(255,180,90,0.95), rgba(255,140,40,0.35) 45%, transparent 72%);
+  filter: blur(6px); opacity: 0.75; pointer-events: none;
+  animation: tavern-flicker 2.6s ease-in-out infinite;
+  transition: opacity 0.4s ease;
+}
+@keyframes tavern-flicker {
+  0%, 100% { opacity: 0.65; }
+  28% { opacity: 0.95; }
+  52% { opacity: 0.5; }
+  74% { opacity: 0.85; }
+}
+.enter-gate.leaving .tavern-glow { animation: none; opacity: 0; }
+
+.enter-content {
+  position: relative; z-index: 5; height: 100%;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: opacity 0.9s cubic-bezier(.4,0,.2,1), transform 0.9s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+  transition: opacity 0.5s ease;
 }
-.enter-gate::before {
-  content: ''; position: absolute; inset: 0; opacity: 0.05; pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 180px 180px;
+.enter-gate.leaving .enter-content { opacity: 0; }
+
+.enter-eyebrow {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--tavern-glow); opacity: 0; margin-bottom: 12px; transform: translateY(8px);
+  transition: opacity 0.8s ease 0.15s, transform 0.8s ease 0.15s;
 }
+.enter-gate.revealed .enter-eyebrow { opacity: 0.9; transform: translateY(0); }
 
 .enter-loader {
-  position: relative; z-index: 1;
-  width: 2px; height: 120px; background: rgba(227,226,226,0.15);
+  position: relative;
+  width: 2px; height: 120px; background: rgba(245,227,196,0.15);
   overflow: hidden; margin-bottom: 28px;
   transition: opacity 0.4s ease, height 0.4s ease;
 }
 .enter-loader-fill {
   position: absolute; left: 0; top: 0; width: 100%; height: 0%;
-  background: var(--lime);
+  background: var(--tavern-glow); box-shadow: 0 0 12px 2px rgba(232,163,61,0.6);
   transition: height 1.3s cubic-bezier(.65,0,.35,1);
 }
 .enter-loader.filled .enter-loader-fill { height: 100%; }
 .enter-gate.revealed .enter-loader { opacity: 0; height: 0; margin-bottom: 0; }
 
 .enter-gate .enter-word {
-  font-family: 'Bodoni Moda', serif; font-weight: 900; color: var(--ink);
+  font-family: 'Bodoni Moda', serif; font-weight: 900; color: var(--tavern-ink);
   font-size: clamp(48px, 11vw, 150px); letter-spacing: -0.02em; margin: 0 0 16px;
-  position: relative; z-index: 1;
+  text-shadow: 0 0 40px rgba(232,163,61,0.55), 0 2px 6px rgba(0,0,0,0.8);
   opacity: 0; transform: scale(0.75); filter: blur(18px);
   transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1), filter 1s cubic-bezier(.16,1,.3,1);
 }
@@ -81,15 +124,11 @@ body {
 
 .enter-gate .enter-sub {
   font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
-  color: var(--lime); opacity: 0; position: relative; z-index: 1;
+  color: var(--tavern-glow); opacity: 0;
   transform: translateY(10px);
   transition: opacity 0.7s ease 0.35s, transform 0.7s ease 0.35s;
 }
 .enter-gate.revealed .enter-sub { opacity: 0.85; transform: translateY(0); }
-
-.enter-gate.leaving { opacity: 0; transform: scale(1.08); pointer-events: none; }
-.enter-gate.leaving .enter-word { transform: scale(1.15); filter: blur(6px); transition-duration: 0.7s; }
-.enter-gate[hidden] { display: none; }
 
 .intro {
   position: relative; min-height: 100vh; padding: 90px 32px; text-align: center; overflow: hidden;
@@ -236,9 +275,15 @@ body {
 <h2 class="sr-only">websites I made -- a scroll-driven showcase of real local business websites, the first three revealing vertically and the rest sliding through a pinned horizontal section</h2>
 
 <div class="enter-gate" id="enterGate">
-  <div class="enter-loader" id="enterLoader"><div class="enter-loader-fill"></div></div>
-  <div class="enter-word serif">ENTER</div>
-  <div class="enter-sub">click to continue</div>
+  <div class="tavern-door tavern-door-left"></div>
+  <div class="tavern-door tavern-door-right"></div>
+  <div class="tavern-glow"></div>
+  <div class="enter-content">
+    <div class="enter-eyebrow">the tavern</div>
+    <div class="enter-loader" id="enterLoader"><div class="enter-loader-fill"></div></div>
+    <div class="enter-word serif">ENTER</div>
+    <div class="enter-sub">push open the door</div>
+  </div>
 </div>
 
 <div class="floaters" aria-hidden="true">
@@ -460,7 +505,7 @@ body {
       sessionStorage.setItem('entered', '1');
       gate.classList.add('leaving');
       document.body.style.overflow = '';
-      setTimeout(function () { gate.hidden = true; }, 950);
+      setTimeout(function () { gate.hidden = true; }, 1150); // matches the 1.1s door-swing transition
     }, { once: true });
   })();
 
