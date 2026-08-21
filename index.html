@@ -216,6 +216,10 @@
   }
   .cursor-glow.active { opacity: 1; }
   .cursor-glow.big { width: 34px; height: 34px; }
+
+  @media (hover: hover) and (pointer: fine) {
+    html.custom-cursor, html.custom-cursor * { cursor: none !important; }
+  }
 </style>
 </head>
 <body>
@@ -735,6 +739,7 @@
   }
 
   if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.documentElement.classList.add('custom-cursor');
     var glow = document.createElement('div');
     glow.className = 'cursor-glow';
     glow.setAttribute('aria-hidden', 'true');
