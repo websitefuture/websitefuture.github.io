@@ -45,7 +45,10 @@ body {
    loading beat before anything reveals), reskinned into a tavern threshold. */
 .enter-gate {
   position: fixed; inset: 0; z-index: 500;
-  background: #0d0805;
+  background: transparent; /* the two door panels are what's opaque when closed --
+    keeping the gate itself transparent means the real site (already rendered behind
+    it) shows through the growing gap as the doors swing open, instead of the doors
+    just revealing more flat gate-color until a hard cut to the site. */
   cursor: pointer; overflow: hidden;
   perspective: 1400px;
   --tavern-glow: #e8a33d;
