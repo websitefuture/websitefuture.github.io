@@ -486,7 +486,6 @@ body {
 (function () {
   'use strict';
 
-  var narrow = window.matchMedia('(max-width: 760px)').matches;
   // cache each card's document-relative offset once (and on resize) instead of calling
   // getBoundingClientRect() on every card every 16ms tick -- that forces a synchronous
   // layout recalculation each time, 60 times a second, across every card on the page,
@@ -571,10 +570,9 @@ body {
   var cardColors = VERTICAL_COLORS.map(hexToOklch);
   var bgColor = hexToOklch('#121414'); // page default
 
-  // ---------------- hand-rolled Lenis-style smooth scroll ----------------
-  // Real reference site measured lerp ~0.1 on their own Lenis instance; matched here.
+  // Real reference site measured lerp ~0.1 on their own Lenis instance -- used here
+  // just to ease the reveal/color effects toward the real (native) scroll position.
   var LERP = 0.1;
-  var maxScroll = 1;
 
   // pinned horizontal-scroll section (ghost-pitcher.com's filmstrip mechanic)
   var hzTrack = document.getElementById('hzTrack');
@@ -588,7 +586,6 @@ body {
   var hzTrackTop = 0, hzMaxScrollable = 1, hzMaxShift = 0, hzPinLeft = 0;
 
   function measure() {
-    maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
     cardData.forEach(function (d) { d.offsetTop = d.el.offsetTop; d.height = d.el.offsetHeight; });
     if (hzTrack) {
       var vh = window.innerHeight;
@@ -604,35 +601,20 @@ body {
   // measure() itself is called once, at the very end of this IIFE, after every
   // section (including floaters) has finished setting up its own cached data.
 
+  // Scrolling itself is now 100% native -- no wheel hijacking, no manual scrollTo().
+  // Earlier this hand-rolled the scroll position via preventDefault(wheel) + a
+  // setInterval loop calling scrollTo() every 16ms, matching what Lenis-style sites
+  // do. But that makes actual scrolling depend entirely on that JS loop firing
+  // reliably: if it ever stalls (heavy work on the page, tab backgrounding, browser
+  // timer throttling), scrolling doesn't just get janky, it stops completely --
+  // confirmed directly (a real scroll gesture produced scrollY:0, page fully frozen).
+  // Native scroll is handled by the browser's compositor and can never be blocked by
+  // this page's own JS, so it's unconditionally smooth. `smoothY` below still lerps
+  // toward the real scroll position, which keeps the reveal effects gently eased
+  // without putting the ability to scroll at all at risk.
   var rawY = window.scrollY;
   var smoothY = rawY;
-  var wheelHijack = !narrow; // skip on small screens -- native touch scroll feels better there
-
-  if (wheelHijack) {
-    window.addEventListener('wheel', function (e) {
-      e.preventDefault();
-      rawY = clamp(rawY + e.deltaY, 0, maxScroll);
-    }, { passive: false });
-
-    var touchStartY = 0;
-    window.addEventListener('touchstart', function (e) { touchStartY = e.touches[0].clientY; }, { passive: true });
-    window.addEventListener('touchmove', function (e) {
-      var y = e.touches[0].clientY;
-      rawY = clamp(rawY + (touchStartY - y), 0, maxScroll);
-      touchStartY = y;
-    }, { passive: true });
-
-    // keyboard: arrow/page/space/home/end
-    window.addEventListener('keydown', function (e) {
-      var step = { ArrowDown: 90, ArrowUp: -90, PageDown: window.innerHeight * 0.9,
-        PageUp: -window.innerHeight * 0.9, Home: -maxScroll, End: maxScroll, ' ': window.innerHeight * 0.9 }[e.key];
-      if (step === undefined) return;
-      e.preventDefault();
-      rawY = clamp(rawY + step, 0, maxScroll);
-    });
-  } else {
-    window.addEventListener('scroll', function () { rawY = window.scrollY; }, { passive: true });
-  }
+  window.addEventListener('scroll', function () { rawY = window.scrollY; }, { passive: true });
 
   // shared weighted OKLCH blend -- collects contributions from whichever cards
   // (vertical or horizontal, whichever section is active) are near the viewport
@@ -834,13 +816,11 @@ body {
   });
 
   function tick() {
-    if (wheelHijack) {
-      smoothY += (rawY - smoothY) * LERP;
-      if (Math.abs(rawY - smoothY) < 0.05) smoothY = rawY;
-      window.scrollTo(0, smoothY);
-    } else {
-      smoothY = window.scrollY;
-    }
+    // smoothY still eases toward the real (native) scroll position, purely for the
+    // reveal/color effects -- it no longer drives the scroll position itself.
+    smoothY += (rawY - smoothY) * LERP;
+    if (Math.abs(rawY - smoothY) < 0.05) smoothY = rawY;
+
     resetBlend();
     renderCards(smoothY);
     renderHz(smoothY);
@@ -849,7 +829,7 @@ body {
 
     // mix-blend-mode:difference forces the browser to recomposite against everything
     // beneath it on every update, so this is the one thing on the page worth throttling
-    // and skipping when at rest, rather than writing a new transform every 16ms tick.
+    // and skipping when at rest, rather than writing a new transform every frame.
     frameCount++;
     if (frameCount % 2 === 0) {
       var dx = mouseX - glowX, dy = mouseY - glowY;
@@ -859,12 +839,12 @@ body {
         glow.style.transform = 'translate(' + glowX.toFixed(1) + 'px,' + glowY.toFixed(1) + 'px) translate(-50%,-50%)';
       }
     }
+    requestAnimationFrame(tick);
   }
   var frameCount = 0;
   measure(); // now that cardData/hzCardData/floaterData all exist, do the one real
              // layout-reading pass up front and cache it -- tick() never needs to again.
-  setInterval(tick, 16);
-  tick();
+  requestAnimationFrame(tick);
 
   // native loading="lazy" wasn't actually deferring these -- measured all 14 real
   // business sites loading within ~3s of page load regardless, since Chrome's own
