@@ -208,12 +208,14 @@
   footer .copy { color: var(--ink-soft); font-size: 11px; letter-spacing: 0.05em; }
 
   .cursor-glow {
-    position: fixed; top: 0; left: 0; width: 420px; height: 420px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0.10) 38%, transparent 70%);
-    pointer-events: none; z-index: 999; mix-blend-mode: screen;
-    transform: translate(-50%, -50%); will-change: transform; opacity: 0; transition: opacity 0.35s ease;
+    position: fixed; top: 0; left: 0; width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; mix-blend-mode: difference;
+    box-shadow: 0 0 14px 3px rgba(255,255,255,0.6), 0 0 34px 10px rgba(255,255,255,0.25);
+    pointer-events: none; z-index: 999;
+    transform: translate(-50%, -50%); will-change: transform; opacity: 0; transition: opacity 0.3s ease, width 0.2s ease, height 0.2s ease;
   }
   .cursor-glow.active { opacity: 1; }
+  .cursor-glow.big { width: 34px; height: 34px; }
 </style>
 </head>
 <body>
@@ -732,7 +734,7 @@
     updateActive();
   }
 
-  if (!reduced && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
     var glow = document.createElement('div');
     glow.className = 'cursor-glow';
     glow.setAttribute('aria-hidden', 'true');
@@ -743,6 +745,10 @@
       glow.classList.add('active');
     });
     document.addEventListener('mouseleave', function () { glow.classList.remove('active'); });
+    document.querySelectorAll('a, button').forEach(function (el) {
+      el.addEventListener('mouseenter', function () { glow.classList.add('big'); });
+      el.addEventListener('mouseleave', function () { glow.classList.remove('big'); });
+    });
     (function raf() {
       gx += (tx - gx) * 0.16;
       gy += (ty - gy) * 0.16;
