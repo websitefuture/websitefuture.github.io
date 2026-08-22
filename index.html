@@ -187,7 +187,7 @@ body {
 .hz-intro { padding: 20px 32px 0; text-align: center; }
 .hz-intro h2 { font-family: 'Bodoni Moda', serif; font-size: clamp(24px, 3.4vw, 38px); margin: 0 0 8px; }
 .hz-intro p { color: var(--ink-soft); font-size: 13px; margin: 0; }
-.hz-track { position: relative; height: 1090vh; }
+.hz-track { position: relative; height: 546vh; }
 .hz-pin { position: sticky; top: 0; z-index: 45; height: 100vh; overflow: hidden; display: flex; align-items: center; pointer-events: none; }
 .hz-counter {
   position: absolute; top: 32px; left: 32px; z-index: 3;
@@ -195,6 +195,39 @@ body {
 }
 .hz-counter b { color: var(--lime); }
 .hz-row { display: flex; gap: 64px; padding: 0 8vw; will-change: transform; }
+
+/* Galaxy section: same pinned-tall-wrapper trick as .hz-track/.hz-pin above, but
+   what's pinned is a canvas starfield (warps faster the further you scroll through
+   the section) with plain text links drifting over it. No iframes anywhere here --
+   clicking a name just navigates to the real site directly, so this whole section
+   costs nothing no matter how many names are floating in it. */
+.galaxy-section { position: relative; height: 350vh; background: #05050a; }
+.galaxy-pin { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+/* position:sticky doesn't reliably act as a containing block for absolutely
+   positioned descendants -- this plain `relative` wrapper (sized to fill the sticky
+   parent) is what the canvas/links are actually positioned against, so they're
+   correctly bound to the 100vh view instead of the section's full scroll height. */
+.galaxy-inner { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+#starCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.galaxy-intro { position: relative; z-index: 2; text-align: center; pointer-events: none; max-width: 640px; padding: 0 24px; }
+.galaxy-intro .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; margin: 0 0 10px; }
+.galaxy-intro h2 { font-family: 'Bodoni Moda', serif; font-size: clamp(24px, 3.6vw, 40px); margin: 0; }
+.floating-links { position: absolute; inset: 0; z-index: 3; }
+.float-link {
+  position: absolute; color: #fff; font-family: 'Bodoni Moda', serif; font-weight: 700;
+  text-decoration: none; white-space: nowrap; opacity: 0.88;
+  text-shadow: 0 0 24px rgba(255,255,255,0.35);
+  animation-name: floaty; animation-timing-function: ease-in-out; animation-iteration-count: infinite;
+  transition: opacity 0.2s ease, text-shadow 0.2s ease;
+}
+.float-link:hover { opacity: 1; text-shadow: 0 0 36px rgba(255,255,255,0.6); text-decoration: underline; }
+@keyframes floaty {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(var(--dx1), var(--dy1)); }
+  50% { transform: translate(var(--dx2), var(--dy2)); }
+  75% { transform: translate(var(--dx3), var(--dy3)); }
+}
+@media (prefers-reduced-motion: reduce) { .float-link { animation: none; } }
 
 .hz-card {
   flex: 0 0 auto;
@@ -360,7 +393,7 @@ body {
 
 <div class="hz-track" id="hzTrack">
   <div class="hz-pin">
-    <div class="hz-counter" id="hzCounter">01 <span style="opacity:0.5">/ 21</span></div>
+    <div class="hz-counter" id="hzCounter">01 <span style="opacity:0.5">/ 10</span></div>
     <div class="hz-row" id="hzRow">
       <div class="hz-card">
         <div class="frame" data-src="https://websitefuture.github.io/previews/greenlees-bakery.html" data-title="Greenlee's Bakery">
@@ -542,203 +575,30 @@ body {
           <span class="tag">Shipped</span>
         </div>
       </div>
-      <div class="hz-card">
-        <div class="frame" data-src="https://websitefuture.github.io/previews/doggie-grooming-styles.html" data-title="Doggie Grooming Styles">
-          <div class="poster" style="background:#E8794F;color:#F5F3EC">
-        <span class="poster-name">Doggie Grooming Styles</span>
-        <span class="poster-cat">Pet Grooming</span>
-        <span class="poster-play">&#9654; View live site</span>
+    </div>
+  </div>
+</div>
+
+<div class="galaxy-section" id="galaxySection">
+  <div class="galaxy-pin">
+    <div class="galaxy-inner">
+      <canvas id="starCanvas"></canvas>
+      <div class="galaxy-intro">
+        <p class="eyebrow" style="color:#fff">11 more, out there.</p>
+        <h2 class="serif" style="color:#fff">Click one to go straight there.</h2>
       </div>
-          <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-        </div>
-        <div class="card-meta">
-          <span class="num">14</span>
-          <div class="info">
-            <h2 class="serif">Doggie Grooming Styles</h2>
-            <p>Pet Grooming</p>
-          </div>
-          <span class="tag">Shipped</span>
-        </div>
-      </div>
-      <div class="hz-card">
-        <div class="frame" data-src="https://websitefuture.github.io/previews/silicon-valley-business-center.html" data-title="Silicon Valley Business Center">
-          <div class="poster" style="background:#10182A;color:#F5F3EC">
-        <span class="poster-name">Silicon Valley Business Center</span>
-        <span class="poster-cat">Coworking &amp; Business Services</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-          <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-        </div>
-        <div class="card-meta">
-          <span class="num">15</span>
-          <div class="info">
-            <h2 class="serif">Silicon Valley Business Center</h2>
-            <p>Coworking &amp; Business Services</p>
-          </div>
-          <span class="tag">Shipped</span>
-        </div>
-      </div>
-      <div class="hz-card">
-        <div class="frame" data-src="https://websitefuture.github.io/previews/satellite-workplaces.html" data-title="Satellite Workplaces">
-          <div class="poster" style="background:#E9E7DF;color:#17181A">
-        <span class="poster-name">Satellite Workplaces</span>
-        <span class="poster-cat">Coworking Network</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-          <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-        </div>
-        <div class="card-meta">
-          <span class="num">16</span>
-          <div class="info">
-            <h2 class="serif">Satellite Workplaces</h2>
-            <p>Coworking Network</p>
-          </div>
-          <span class="tag">Live</span>
-        </div>
-      </div>
-      <div class="hz-card">
-        <div class="frame" data-src="https://websitefuture.github.io/previews/pro-alignment-brake.html" data-title="PRO Alignment & Brake">
-          <div class="poster" style="background:#C41E3A;color:#F5F3EC">
-        <span class="poster-name">PRO Alignment & Brake</span>
-        <span class="poster-cat">Auto Repair Shop</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-          <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-        </div>
-        <div class="card-meta">
-          <span class="num">17</span>
-          <div class="info">
-            <h2 class="serif">PRO Alignment &amp; Brake</h2>
-            <p>Auto Repair Shop</p>
-          </div>
-          <span class="tag">Shipped</span>
-        </div>
-      </div>
-      <div class="hz-card">
-        <div class="frame" data-src="https://websitefuture.github.io/previews/town-barber-shop.html" data-title="Town Barber Shop">
-          <div class="poster" style="background:#8E2A22;color:#F5F3EC">
-        <span class="poster-name">Town Barber Shop</span>
-        <span class="poster-cat">Barber Shop, North Conway NH</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-          <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-        </div>
-        <div class="card-meta">
-          <span class="num">18</span>
-          <div class="info">
-            <h2 class="serif">Town Barber Shop</h2>
-            <p>Barber Shop, North Conway NH</p>
-          </div>
-          <span class="tag">Shipped</span>
-        </div>
-      </div>
-      <div class="hz-card">
-        <div class="frame" data-src="https://websitefuture.github.io/previews/jorges-upholstery.html" data-title="Jorge's Upholstery">
-          <div class="poster" style="background:#A23B2A;color:#F5F3EC">
-        <span class="poster-name">Jorge's Upholstery</span>
-        <span class="poster-cat">Reupholstery, Chicago IL</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-          <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-        </div>
-        <div class="card-meta">
-          <span class="num">19</span>
-          <div class="info">
-            <h2 class="serif">Jorge's Upholstery</h2>
-            <p>Reupholstery, Chicago IL</p>
-          </div>
-          <span class="tag">Shipped</span>
-        </div>
-      </div>
-      <div class="hz-card">
-        <div class="frame" data-src="https://websitefuture.github.io/previews/pleasant-hill-feed.html" data-title="Pleasant Hill Feed & Farm Supply">
-          <div class="poster" style="background:#3E5D48;color:#F5F3EC">
-        <span class="poster-name">Pleasant Hill Feed & Farm Supply</span>
-        <span class="poster-cat">Feed &amp; Farm Supply, Pleasant Hill OR</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-          <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-        </div>
-        <div class="card-meta">
-          <span class="num">20</span>
-          <div class="info">
-            <h2 class="serif">Pleasant Hill Feed &amp; Farm Supply</h2>
-            <p>Feed &amp; Farm Supply, Pleasant Hill OR</p>
-          </div>
-          <span class="tag">Shipped</span>
-        </div>
-      </div>
-      <div class="hz-card">
-        <div class="frame" data-src="https://websitefuture.github.io/previews/charles-cafeteria.html" data-title="Charles' Cafeteria & Grill">
-          <div class="poster" style="background:#8C2418;color:#F5F3EC">
-        <span class="poster-name">Charles' Cafeteria & Grill</span>
-        <span class="poster-cat">Soul Food, Fayette AL</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-          <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-        </div>
-        <div class="card-meta">
-          <span class="num">21</span>
-          <div class="info">
-            <h2 class="serif">Charles' Cafeteria &amp; Grill</h2>
-            <p>Soul Food, Fayette AL</p>
-          </div>
-          <span class="tag">Shipped</span>
-        </div>
-      </div>
-      <div class="hz-card">
-        <div class="frame" data-src="https://websitefuture.github.io/previews/i-town-pawn.html" data-title="I Town Pawn">
-          <div class="poster" style="background:#33503A;color:#F5F3EC">
-        <span class="poster-name">I Town Pawn</span>
-        <span class="poster-cat">Pawn Shop, Indianola IA</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-          <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-        </div>
-        <div class="card-meta">
-          <span class="num">22</span>
-          <div class="info">
-            <h2 class="serif">I Town Pawn</h2>
-            <p>Pawn Shop, Indianola IA</p>
-          </div>
-          <span class="tag">Shipped</span>
-        </div>
-      </div>
-      <div class="hz-card">
-        <div class="frame" data-src="https://websitefuture.github.io/previews/tilton-village-thrift.html" data-title="Tilton Village Thrift & Antiques">
-          <div class="poster" style="background:#A8894F;color:#F5F3EC">
-        <span class="poster-name">Tilton Village Thrift & Antiques</span>
-        <span class="poster-cat">Thrift &amp; Antiques, Tilton NH</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-          <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-        </div>
-        <div class="card-meta">
-          <span class="num">23</span>
-          <div class="info">
-            <h2 class="serif">Tilton Village Thrift &amp; Antiques</h2>
-            <p>Thrift &amp; Antiques, Tilton NH</p>
-          </div>
-          <span class="tag">Shipped</span>
-        </div>
-      </div>
-      <div class="hz-card">
-        <div class="frame" data-src="https://websitefuture.github.io/previews/simpler-times-consignment.html" data-title="Simpler Times Consignment Co-Op">
-          <div class="poster" style="background:#8C3A2E;color:#F5F3EC">
-        <span class="poster-name">Simpler Times Consignment Co-Op</span>
-        <span class="poster-cat">Consignment &amp; Antiques, Palm PA</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-          <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-        </div>
-        <div class="card-meta">
-          <span class="num">24</span>
-          <div class="info">
-            <h2 class="serif">Simpler Times Consignment Co-Op</h2>
-            <p>Consignment &amp; Antiques, Palm PA</p>
-          </div>
-          <span class="tag">Shipped</span>
-        </div>
+      <div class="floating-links">
+<a class="float-link" href="https://websitefuture.github.io/previews/doggie-grooming-styles.html" target="_blank" rel="noopener" style="top:21.2%;left:61.3%;font-size:29px;--dx1:11px;--dy1:-6px;--dx2:-20px;--dy2:-26px;--dx3:-20px;--dy3:-1px;animation-duration:22.4s;animation-delay:-3.1s;">Doggie Grooming Styles</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/silicon-valley-business-center.html" target="_blank" rel="noopener" style="top:47.0%;left:22.1%;font-size:39px;--dx1:-25px;--dy1:-44px;--dx2:44px;--dy2:-14px;--dx3:-46px;--dy3:-43px;animation-duration:23.2s;animation-delay:-4.4s;">Silicon Valley Business Center</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/satellite-workplaces.html" target="_blank" rel="noopener" style="top:13.8%;left:63.9%;font-size:61px;--dx1:-59px;--dy1:-43px;--dx2:30px;--dy2:48px;--dx3:-20px;--dy3:-27px;animation-duration:18.9s;animation-delay:-10.8s;">Satellite Workplaces</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/pro-alignment-brake.html" target="_blank" rel="noopener" style="top:62.5%;left:53.7%;font-size:54px;--dx1:-58px;--dy1:34px;--dx2:-47px;--dy2:50px;--dx3:-28px;--dy3:32px;animation-duration:20.4s;animation-delay:-10.5s;">PRO Alignment & Brake</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/town-barber-shop.html" target="_blank" rel="noopener" style="top:72.9%;left:69.5%;font-size:47px;--dx1:-3px;--dy1:36px;--dx2:9px;--dy2:32px;--dx3:-22px;--dy3:-2px;animation-duration:27.7s;animation-delay:-14.6s;">Town Barber Shop</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/jorges-upholstery.html" target="_blank" rel="noopener" style="top:55.5%;left:73.4%;font-size:47px;--dx1:-18px;--dy1:3px;--dx2:41px;--dy2:-14px;--dx3:-58px;--dy3:-47px;animation-duration:27.7s;animation-delay:-15.9s;">Jorge's Upholstery</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/pleasant-hill-feed.html" target="_blank" rel="noopener" style="top:52.2%;left:52.2%;font-size:57px;--dx1:-48px;--dy1:-24px;--dx2:-48px;--dy2:26px;--dx3:35px;--dy3:-48px;animation-duration:22.0s;animation-delay:-11.0s;">Pleasant Hill Feed & Farm Supply</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/charles-cafeteria.html" target="_blank" rel="noopener" style="top:49.6%;left:80.9%;font-size:53px;--dx1:-17px;--dy1:25px;--dx2:54px;--dy2:22px;--dx3:24px;--dy3:-41px;animation-duration:23.6s;animation-delay:-18.8s;">Charles' Cafeteria & Grill</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/i-town-pawn.html" target="_blank" rel="noopener" style="top:65.2%;left:26.3%;font-size:60px;--dx1:-59px;--dy1:-35px;--dx2:-45px;--dy2:-31px;--dx3:-25px;--dy3:42px;animation-duration:28.8s;animation-delay:-13.5s;">I Town Pawn</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/tilton-village-thrift.html" target="_blank" rel="noopener" style="top:49.3%;left:38.5%;font-size:58px;--dx1:59px;--dy1:4px;--dx2:34px;--dy2:-35px;--dx3:-50px;--dy3:15px;animation-duration:20.1s;animation-delay:-10.3s;">Tilton Village Thrift & Antiques</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/simpler-times-consignment.html" target="_blank" rel="noopener" style="top:75.7%;left:69.4%;font-size:42px;--dx1:-42px;--dy1:-8px;--dx2:36px;--dy2:-37px;--dx3:-2px;--dy3:-13px;animation-duration:27.2s;animation-delay:-7.8s;">Simpler Times Consignment Co-Op</a>
       </div>
     </div>
   </div>
@@ -834,7 +694,7 @@ body {
 
   // real brand colors, one per business, in the same order as the DOM
   var VERTICAL_COLORS = ["#D9A32C","#C1352B","#2F5D3A"];
-  var HORIZONTAL_COLORS = ["#A8562E","#1F2326","#2F6FED","#FF5C7A","#171717","#2F7A6C","#B5482F","#2F4A3C","#D4A72C","#6B3A2C","#E8794F","#10182A","#E9E7DF","#C41E3A","#8E2A22","#A23B2A","#3E5D48","#8C2418","#33503A","#A8894F","#8C3A2E"];
+  var HORIZONTAL_COLORS = ["#A8562E","#1F2326","#2F6FED","#FF5C7A","#171717","#2F7A6C","#B5482F","#2F4A3C","#D4A72C","#6B3A2C"];
   var cardColors = VERTICAL_COLORS.map(hexToOklch);
   var bgColor = hexToOklch('#121414'); // page default
 
@@ -1109,6 +969,66 @@ body {
       coordEl.textContent = x + ' X ' + y + ' Y';
     }, { passive: true });
   }
+
+  // Galaxy starfield: a classic warp-speed particle field (stars projected from a 3D
+  // point toward the camera) drawn on canvas -- cheap regardless of how much else is on
+  // the page, since it's a few hundred plain arcs, not DOM/iframes. Warp speed is tied
+  // to how far you've scrolled through the pinned galaxy section, so it visibly
+  // accelerates as you pass through rather than just running at a constant rate.
+  (function () {
+    var canvas = document.getElementById('starCanvas');
+    var galaxySection = document.getElementById('galaxySection');
+    if (!canvas || !galaxySection) return;
+    var ctx = canvas.getContext('2d');
+    var STAR_COUNT = 320;
+    var stars = [];
+    var w = 0, h = 0;
+
+    function resize() {
+      w = canvas.width = canvas.offsetWidth;
+      h = canvas.height = canvas.offsetHeight;
+    }
+    function makeStar() {
+      return { x: (Math.random() - 0.5) * w, y: (Math.random() - 0.5) * h, z: Math.random() * w };
+    }
+    resize();
+    for (var i = 0; i < STAR_COUNT; i++) stars.push(makeStar());
+    window.addEventListener('resize', resize);
+
+    var warp = 0; // 0..1, how far into the pinned section
+    function measureWarp() {
+      var rect = galaxySection.getBoundingClientRect();
+      var total = galaxySection.offsetHeight - window.innerHeight;
+      var into = Math.min(Math.max(-rect.top, 0), Math.max(1, total));
+      warp = total > 0 ? into / total : 0;
+    }
+    window.addEventListener('scroll', measureWarp, { passive: true });
+    measureWarp();
+
+    function draw() {
+      if (w > 0 && h > 0) {
+        ctx.fillStyle = '#05050a';
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = '#fff';
+        var cx = w / 2, cy = h / 2;
+        var speed = 2 + warp * 26;
+        for (var i = 0; i < stars.length; i++) {
+          var s = stars[i];
+          s.z -= speed;
+          if (s.z <= 1) { s.x = (Math.random() - 0.5) * w; s.y = (Math.random() - 0.5) * h; s.z = w; }
+          var k = 128 / s.z;
+          var sx = s.x * k + cx, sy = s.y * k + cy;
+          if (sx < 0 || sx > w || sy < 0 || sy > h) continue;
+          var size = Math.max(0.6, (1 - s.z / w) * 2.6);
+          ctx.beginPath();
+          ctx.arc(sx, sy, size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  })();
 })();
 
 </script>
