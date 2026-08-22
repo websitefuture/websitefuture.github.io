@@ -749,6 +749,7 @@ body {
   <p>Every one of these is a real local business, built and shipped for free.</p>
 </div>
 
+<script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js"></script>
 <script>
 (function () {
   'use strict';
@@ -837,17 +838,6 @@ body {
   var cardColors = VERTICAL_COLORS.map(hexToOklch);
   var bgColor = hexToOklch('#121414'); // page default
 
-  // 0.1 was borrowed from a reference site's Lenis instance, where Lenis itself was
-  // already easing the actual scroll position -- this LERP was ADDITIONAL lag stacked
-  // on top of that. Here, real scroll is 100% native and instant (deliberately -- see
-  // the note below on why it's never hijacked), so a 0.1 LERP means the card reveal and
-  // the hz-row slide visibly keep drifting into place for ~300-500ms after you've
-  // already stopped scrolling -- a perceptible mismatch between input and motion that
-  // reads as "not smooth" even with zero jank. Tightened so the reveal tracks the real
-  // scroll far more directly (~100-150ms to settle) while still rounding off the raw
-  // per-wheel-notch jumps enough not to feel like a hard snap.
-  var LERP = 0.35;
-
   // pinned horizontal-scroll section (ghost-pitcher.com's filmstrip mechanic)
   var hzTrack = document.getElementById('hzTrack');
   var hzRow = document.getElementById('hzRow');
@@ -874,19 +864,30 @@ body {
   // measure() itself is called once, at the very end of this IIFE, after every
   // section has finished setting up its own cached data.
 
-  // Scrolling itself is now 100% native -- no wheel hijacking, no manual scrollTo().
-  // Earlier this hand-rolled the scroll position via preventDefault(wheel) + a
-  // setInterval loop calling scrollTo() every 16ms, matching what Lenis-style sites
-  // do. But that makes actual scrolling depend entirely on that JS loop firing
-  // reliably: if it ever stalls (heavy work on the page, tab backgrounding, browser
-  // timer throttling), scrolling doesn't just get janky, it stops completely --
-  // confirmed directly (a real scroll gesture produced scrollY:0, page fully frozen).
-  // Native scroll is handled by the browser's compositor and can never be blocked by
-  // this page's own JS, so it's unconditionally smooth. `smoothY` below still lerps
-  // toward the real scroll position, which keeps the reveal effects gently eased
-  // without putting the ability to scroll at all at risk.
+  // Real inertial smooth scroll, via the actual Lenis library (the same one running
+  // haoqi.design and most other award-winning scroll-driven sites) -- not a hand-rolled
+  // version of the same idea. An earlier attempt at this exact feature hand-rolled it
+  // via preventDefault(wheel) + a setInterval loop calling scrollTo() every 16ms, which
+  // depended entirely on that loop firing reliably: when it stalled (heavy page work,
+  // tab backgrounding, timer throttling), scrolling didn't just get janky, it stopped
+  // completely -- confirmed directly (a real scroll gesture produced scrollY:0, page
+  // fully frozen). Lenis runs its loop on requestAnimationFrame instead, which the
+  // browser itself paces and can't pile up the way setInterval can, and it's the
+  // output of years of production use across thousands of sites rather than a single
+  // session's first attempt -- a fundamentally different risk profile from before.
+  //
+  // Lenis eases the real window.scrollY itself (not a fake transform on a wrapper),
+  // so position:sticky (the pinned horizontal section below) keeps working exactly as
+  // it did on raw native scroll, and this listener sees the same already-smoothed
+  // values everything else expects.
   var rawY = window.scrollY;
-  var smoothY = rawY;
+  if (window.Lenis) {
+    var lenis = new window.Lenis({ duration: 1.1, smoothWheel: true });
+    (function lenisRaf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(lenisRaf);
+    })();
+  }
   window.addEventListener('scroll', function () { rawY = window.scrollY; }, { passive: true });
 
   // shared weighted OKLCH blend -- collects contributions from whichever cards
@@ -995,21 +996,19 @@ body {
   // straight to scheduling the next rAF, which costs almost nothing.
   var lastRenderedY = null;
   function tick() {
-    // smoothY still eases toward the real (native) scroll position, purely for the
-    // reveal/color effects -- it no longer drives the scroll position itself.
-    smoothY += (rawY - smoothY) * LERP;
-    if (Math.abs(rawY - smoothY) < 0.05) smoothY = rawY;
-
+    // rawY is already eased (Lenis is smoothing the real window.scrollY itself now),
+    // so the reveal/color effects just track it directly -- no separate LERP layer,
+    // which would otherwise stack a second round of lag on top of Lenis's own easing.
     var dx = mouseX - glowX, dy = mouseY - glowY;
     var cursorMoving = Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05;
-    var scrollSettled = lastRenderedY !== null && Math.abs(smoothY - lastRenderedY) < 0.02;
+    var scrollSettled = lastRenderedY !== null && Math.abs(rawY - lastRenderedY) < 0.02;
 
     if (!scrollSettled) {
       resetBlend();
-      renderCards(smoothY);
-      renderHz(smoothY);
+      renderCards(rawY);
+      renderHz(rawY);
       finishBlend();
-      lastRenderedY = smoothY;
+      lastRenderedY = rawY;
     }
 
     // mix-blend-mode:difference forces the browser to recomposite against everything
