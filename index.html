@@ -208,6 +208,12 @@ body {
   border: 1px solid var(--border); background: var(--surface);
   aspect-ratio: 16 / 10;
   box-shadow: 0 40px 80px -30px rgba(0,0,0,0.6);
+  /* skip layout/paint work entirely for frames nowhere near the viewport -- with 24
+     heavy iframes now in the DOM, the browser was doing real rendering work for all
+     of them at once. aspect-ratio already gives this box a size independent of its
+     content, so content-visibility:auto can safely stop rendering it off-screen with
+     no layout jump when it re-enters view. */
+  content-visibility: auto;
 }
 .frame iframe {
   width: 100%; height: 100%; border: 0; display: block; background: #fff;
@@ -834,14 +840,33 @@ body {
   // cause of the lag. This IntersectionObserver gives real, tight control instead:
   // only set src (triggering the actual load) once a card is within 200px of view.
   var lazyFrames = Array.prototype.slice.call(document.querySelectorAll('.lazy-frame'));
+
+  // Scrolling FAST past several cards at once used to fire all their loads in the same
+  // tick -- each one is a real site with its own HTML/CSS/embedded photos (some over
+  // 1MB), so 3-6 of them starting to parse simultaneously piled up on the main thread
+  // right when it needed to be free for scrolling, which is exactly what showed up as
+  // stutter during fast scrolling specifically. A small queue spaces the actual loads
+  // out instead of bursting them, without changing how early loading starts (rootMargin
+  // still gives real lead time -- this only staggers what happens once several qualify
+  // at once).
+  var loadQueue = [];
+  var queueBusy = false;
+  function drainQueue() {
+    if (queueBusy || loadQueue.length === 0) return;
+    queueBusy = true;
+    var f = loadQueue.shift();
+    if (f.dataset.src) { f.src = f.dataset.src; f.removeAttribute('data-src'); }
+    setTimeout(function () { queueBusy = false; drainQueue(); }, 120);
+  }
+
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
-        var f = entry.target;
-        if (f.dataset.src) { f.src = f.dataset.src; f.removeAttribute('data-src'); }
-        io.unobserve(f);
+        io.unobserve(entry.target);
+        loadQueue.push(entry.target);
       });
+      drainQueue();
       // 200px wasn't enough lead time -- each site takes a moment to actually fetch
       // and render, so cards were popping in visibly right as they came into view.
       // 800px on every side (a fixed pixel value, not a percentage -- more reliably
