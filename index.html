@@ -649,9 +649,16 @@ body {
   var cardColors = VERTICAL_COLORS.map(hexToOklch);
   var bgColor = hexToOklch('#121414'); // page default
 
-  // Real reference site measured lerp ~0.1 on their own Lenis instance -- used here
-  // just to ease the reveal/color effects toward the real (native) scroll position.
-  var LERP = 0.1;
+  // 0.1 was borrowed from a reference site's Lenis instance, where Lenis itself was
+  // already easing the actual scroll position -- this LERP was ADDITIONAL lag stacked
+  // on top of that. Here, real scroll is 100% native and instant (deliberately -- see
+  // the note below on why it's never hijacked), so a 0.1 LERP means the card reveal and
+  // the hz-row slide visibly keep drifting into place for ~300-500ms after you've
+  // already stopped scrolling -- a perceptible mismatch between input and motion that
+  // reads as "not smooth" even with zero jank. Tightened so the reveal tracks the real
+  // scroll far more directly (~100-150ms to settle) while still rounding off the raw
+  // per-wheel-notch jumps enough not to feel like a hard snap.
+  var LERP = 0.35;
 
   // pinned horizontal-scroll section (ghost-pitcher.com's filmstrip mechanic)
   var hzTrack = document.getElementById('hzTrack');
