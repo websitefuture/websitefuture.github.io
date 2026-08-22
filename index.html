@@ -785,28 +785,40 @@ body {
     el.addEventListener('mouseleave', function () { glow.classList.remove('big'); });
   });
 
+  // tick() used to do full work -- an OKLCH blend over every card plus a body
+  // repaint -- on every single frame forever, even at rest with nothing moving.
+  // That's 60 unconditional passes a second competing with everything else on the
+  // page (now 24 cards' worth of it, up from 14), which is real, continuous cost
+  // for zero visible change most of the time a tab is just sitting open. Only do
+  // that work when something actually moved since the last frame; otherwise skip
+  // straight to scheduling the next rAF, which costs almost nothing.
+  var lastRenderedY = null;
   function tick() {
     // smoothY still eases toward the real (native) scroll position, purely for the
     // reveal/color effects -- it no longer drives the scroll position itself.
     smoothY += (rawY - smoothY) * LERP;
     if (Math.abs(rawY - smoothY) < 0.05) smoothY = rawY;
 
-    resetBlend();
-    renderCards(smoothY);
-    renderHz(smoothY);
-    finishBlend();
+    var dx = mouseX - glowX, dy = mouseY - glowY;
+    var cursorMoving = Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05;
+    var scrollSettled = lastRenderedY !== null && Math.abs(smoothY - lastRenderedY) < 0.02;
+
+    if (!scrollSettled) {
+      resetBlend();
+      renderCards(smoothY);
+      renderHz(smoothY);
+      finishBlend();
+      lastRenderedY = smoothY;
+    }
 
     // mix-blend-mode:difference forces the browser to recomposite against everything
     // beneath it on every update, so this is the one thing on the page worth throttling
     // and skipping when at rest, rather than writing a new transform every frame.
     frameCount++;
-    if (frameCount % 2 === 0) {
-      var dx = mouseX - glowX, dy = mouseY - glowY;
-      if (Math.abs(dx) > 0.05 || Math.abs(dy) > 0.05) {
-        glowX += dx * 0.16;
-        glowY += dy * 0.16;
-        glow.style.transform = 'translate(' + glowX.toFixed(1) + 'px,' + glowY.toFixed(1) + 'px) translate(-50%,-50%)';
-      }
+    if (cursorMoving && frameCount % 2 === 0) {
+      glowX += dx * 0.16;
+      glowY += dy * 0.16;
+      glow.style.transform = 'translate(' + glowX.toFixed(1) + 'px,' + glowY.toFixed(1) + 'px) translate(-50%,-50%)';
     }
     requestAnimationFrame(tick);
   }
