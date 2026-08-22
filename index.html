@@ -207,25 +207,33 @@ body {
    positioned descendants -- this plain `relative` wrapper (sized to fill the sticky
    parent) is what the canvas/links are actually positioned against, so they're
    correctly bound to the 100vh view instead of the section's full scroll height. */
-.galaxy-inner { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.galaxy-inner { position: relative; width: 100%; height: 100%; }
 #starCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.galaxy-intro { position: relative; z-index: 2; text-align: center; pointer-events: none; max-width: 640px; padding: 0 24px; }
-.galaxy-intro .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; margin: 0 0 10px; }
-.galaxy-intro h2 { font-family: 'Bodoni Moda', serif; font-size: clamp(24px, 3.6vw, 40px); margin: 0; }
+/* reserved band at the very top, out of the grid the names occupy (which starts at
+   14%) so the label never competes with a name for the same space */
+.galaxy-intro {
+  position: absolute; top: 4%; left: 50%; transform: translateX(-50%);
+  z-index: 2; text-align: center; pointer-events: none; max-width: 640px; padding: 0 24px;
+}
+.galaxy-intro .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; margin: 0 0 6px; }
+.galaxy-intro h2 { font-family: 'Bodoni Moda', serif; font-size: clamp(20px, 2.6vw, 30px); margin: 0; }
 .floating-links { position: absolute; inset: 0; z-index: 3; }
 .float-link {
   position: absolute; color: #fff; font-family: 'Bodoni Moda', serif; font-weight: 700;
-  text-decoration: none; white-space: nowrap; opacity: 0.88;
+  text-decoration: none; white-space: nowrap; opacity: 0.88; line-height: 1;
   text-shadow: 0 0 24px rgba(255,255,255,0.35);
   animation-name: floaty; animation-timing-function: ease-in-out; animation-iteration-count: infinite;
   transition: opacity 0.2s ease, text-shadow 0.2s ease;
 }
 .float-link:hover { opacity: 1; text-shadow: 0 0 36px rgba(255,255,255,0.6); text-decoration: underline; }
+/* top/left mark the CENTER of each name's cell -- translate(-50%,-50%) is the base
+   transform for that (not just a reset to 0,0 like a typical drift animation), with
+   the per-keyframe drift delta added on top of it via calc() at each step. */
 @keyframes floaty {
-  0%, 100% { transform: translate(0, 0); }
-  25% { transform: translate(var(--dx1), var(--dy1)); }
-  50% { transform: translate(var(--dx2), var(--dy2)); }
-  75% { transform: translate(var(--dx3), var(--dy3)); }
+  0%, 100% { transform: translate(-50%, -50%); }
+  25% { transform: translate(calc(-50% + var(--dx1)), calc(-50% + var(--dy1))); }
+  50% { transform: translate(calc(-50% + var(--dx2)), calc(-50% + var(--dy2))); }
+  75% { transform: translate(calc(-50% + var(--dx3)), calc(-50% + var(--dy3))); }
 }
 @media (prefers-reduced-motion: reduce) { .float-link { animation: none; } }
 
@@ -588,17 +596,17 @@ body {
         <h2 class="serif" style="color:#fff">Click one to go straight there.</h2>
       </div>
       <div class="floating-links">
-<a class="float-link" href="https://websitefuture.github.io/previews/doggie-grooming-styles.html" target="_blank" rel="noopener" style="top:21.2%;left:61.3%;font-size:29px;--dx1:11px;--dy1:-6px;--dx2:-20px;--dy2:-26px;--dx3:-20px;--dy3:-1px;animation-duration:22.4s;animation-delay:-3.1s;">Doggie Grooming Styles</a>
-<a class="float-link" href="https://websitefuture.github.io/previews/silicon-valley-business-center.html" target="_blank" rel="noopener" style="top:47.0%;left:22.1%;font-size:39px;--dx1:-25px;--dy1:-44px;--dx2:44px;--dy2:-14px;--dx3:-46px;--dy3:-43px;animation-duration:23.2s;animation-delay:-4.4s;">Silicon Valley Business Center</a>
-<a class="float-link" href="https://websitefuture.github.io/previews/satellite-workplaces.html" target="_blank" rel="noopener" style="top:13.8%;left:63.9%;font-size:61px;--dx1:-59px;--dy1:-43px;--dx2:30px;--dy2:48px;--dx3:-20px;--dy3:-27px;animation-duration:18.9s;animation-delay:-10.8s;">Satellite Workplaces</a>
-<a class="float-link" href="https://websitefuture.github.io/previews/pro-alignment-brake.html" target="_blank" rel="noopener" style="top:62.5%;left:53.7%;font-size:54px;--dx1:-58px;--dy1:34px;--dx2:-47px;--dy2:50px;--dx3:-28px;--dy3:32px;animation-duration:20.4s;animation-delay:-10.5s;">PRO Alignment & Brake</a>
-<a class="float-link" href="https://websitefuture.github.io/previews/town-barber-shop.html" target="_blank" rel="noopener" style="top:72.9%;left:69.5%;font-size:47px;--dx1:-3px;--dy1:36px;--dx2:9px;--dy2:32px;--dx3:-22px;--dy3:-2px;animation-duration:27.7s;animation-delay:-14.6s;">Town Barber Shop</a>
-<a class="float-link" href="https://websitefuture.github.io/previews/jorges-upholstery.html" target="_blank" rel="noopener" style="top:55.5%;left:73.4%;font-size:47px;--dx1:-18px;--dy1:3px;--dx2:41px;--dy2:-14px;--dx3:-58px;--dy3:-47px;animation-duration:27.7s;animation-delay:-15.9s;">Jorge's Upholstery</a>
-<a class="float-link" href="https://websitefuture.github.io/previews/pleasant-hill-feed.html" target="_blank" rel="noopener" style="top:52.2%;left:52.2%;font-size:57px;--dx1:-48px;--dy1:-24px;--dx2:-48px;--dy2:26px;--dx3:35px;--dy3:-48px;animation-duration:22.0s;animation-delay:-11.0s;">Pleasant Hill Feed & Farm Supply</a>
-<a class="float-link" href="https://websitefuture.github.io/previews/charles-cafeteria.html" target="_blank" rel="noopener" style="top:49.6%;left:80.9%;font-size:53px;--dx1:-17px;--dy1:25px;--dx2:54px;--dy2:22px;--dx3:24px;--dy3:-41px;animation-duration:23.6s;animation-delay:-18.8s;">Charles' Cafeteria & Grill</a>
-<a class="float-link" href="https://websitefuture.github.io/previews/i-town-pawn.html" target="_blank" rel="noopener" style="top:65.2%;left:26.3%;font-size:60px;--dx1:-59px;--dy1:-35px;--dx2:-45px;--dy2:-31px;--dx3:-25px;--dy3:42px;animation-duration:28.8s;animation-delay:-13.5s;">I Town Pawn</a>
-<a class="float-link" href="https://websitefuture.github.io/previews/tilton-village-thrift.html" target="_blank" rel="noopener" style="top:49.3%;left:38.5%;font-size:58px;--dx1:59px;--dy1:4px;--dx2:34px;--dy2:-35px;--dx3:-50px;--dy3:15px;animation-duration:20.1s;animation-delay:-10.3s;">Tilton Village Thrift & Antiques</a>
-<a class="float-link" href="https://websitefuture.github.io/previews/simpler-times-consignment.html" target="_blank" rel="noopener" style="top:75.7%;left:69.4%;font-size:42px;--dx1:-42px;--dy1:-8px;--dx2:36px;--dy2:-37px;--dx3:-2px;--dy3:-13px;animation-duration:27.2s;animation-delay:-7.8s;">Simpler Times Consignment Co-Op</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/doggie-grooming-styles.html" target="_blank" rel="noopener" style="top:77.7%;left:23.9%;font-size:3.55vw;--dx1:-8px;--dy1:11px;--dx2:15px;--dy2:4px;--dx3:-3px;--dy3:11px;animation-duration:22.7s;animation-delay:-7.1s;">Doggie Grooming Styles</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/silicon-valley-business-center.html" target="_blank" rel="noopener" style="top:64.1%;left:87.4%;font-size:2.60vw;--dx1:9px;--dy1:2px;--dx2:-10px;--dy2:-7px;--dx3:5px;--dy3:3px;animation-duration:19.3s;animation-delay:-5.2s;">Silicon Valley Business Center</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/satellite-workplaces.html" target="_blank" rel="noopener" style="top:59.3%;left:19.4%;font-size:3.90vw;--dx1:11px;--dy1:-11px;--dx2:-1px;--dy2:-11px;--dx3:4px;--dy3:-8px;animation-duration:21.6s;animation-delay:-16.3s;">Satellite Workplaces</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/pro-alignment-brake.html" target="_blank" rel="noopener" style="top:37.5%;left:15.6%;font-size:3.71vw;--dx1:-14px;--dy1:8px;--dx2:-16px;--dy2:-8px;--dx3:2px;--dy3:-9px;animation-duration:22.1s;animation-delay:-2.5s;">PRO Alignment & Brake</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/town-barber-shop.html" target="_blank" rel="noopener" style="top:83.3%;left:93.1%;font-size:4.88vw;--dx1:8px;--dy1:8px;--dx2:15px;--dy2:9px;--dx3:1px;--dy3:-10px;animation-duration:23.2s;animation-delay:-3.9s;">Town Barber Shop</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/jorges-upholstery.html" target="_blank" rel="noopener" style="top:16.4%;left:41.9%;font-size:4.33vw;--dx1:4px;--dy1:9px;--dx2:-11px;--dy2:-3px;--dx3:-2px;--dy3:8px;animation-duration:17.5s;animation-delay:-6.4s;">Jorge's Upholstery</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/pleasant-hill-feed.html" target="_blank" rel="noopener" style="top:48.1%;left:25.3%;font-size:1.56vw;--dx1:1px;--dy1:7px;--dx2:1px;--dy2:4px;--dx3:4px;--dy3:-11px;animation-duration:22.9s;animation-delay:-16.3s;">Pleasant Hill Feed & Farm Supply</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/charles-cafeteria.html" target="_blank" rel="noopener" style="top:32.6%;left:89.1%;font-size:2.43vw;--dx1:-14px;--dy1:2px;--dx2:10px;--dy2:-7px;--dx3:1px;--dy3:-9px;animation-duration:17.7s;animation-delay:-5.7s;">Charles' Cafeteria & Grill</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/i-town-pawn.html" target="_blank" rel="noopener" style="top:47.8%;left:72.6%;font-size:5.60vw;--dx1:16px;--dy1:-3px;--dx2:-14px;--dy2:-4px;--dx3:0px;--dy3:8px;animation-duration:29.8s;animation-delay:-6.8s;">I Town Pawn</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/tilton-village-thrift.html" target="_blank" rel="noopener" style="top:88.8%;left:11.8%;font-size:1.56vw;--dx1:-1px;--dy1:6px;--dx2:3px;--dy2:-8px;--dx3:5px;--dy3:-11px;animation-duration:23.6s;animation-delay:-9.5s;">Tilton Village Thrift & Antiques</a>
+<a class="float-link" href="https://websitefuture.github.io/previews/simpler-times-consignment.html" target="_blank" rel="noopener" style="top:20.8%;left:95.8%;font-size:1.71vw;--dx1:14px;--dy1:-2px;--dx2:-7px;--dy2:1px;--dx3:10px;--dy3:-7px;animation-duration:24.8s;animation-delay:-3.3s;">Simpler Times Consignment Co-Op</a>
       </div>
     </div>
   </div>
