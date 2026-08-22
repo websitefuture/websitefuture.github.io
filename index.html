@@ -217,7 +217,26 @@ body {
 }
 .frame iframe {
   width: 100%; height: 100%; border: 0; display: block; background: #fff;
+  position: relative; z-index: 0;
 }
+/* Nothing here loads by default -- the real site (a full separate document,
+   sometimes 1MB+ of real photos) only gets created and loaded the moment someone
+   actually clicks in. Until then this is just a colored div with two lines of
+   text: zero network requests, zero parsing, zero decode cost, for all 24 cards
+   at once. This is the actual fix for scroll smoothness -- not a faster way to
+   load 24 live embeds, but not loading them until they're wanted. */
+.poster {
+  position: absolute; inset: 0; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 10px; padding: 24px;
+}
+.poster-name { font-family: 'Bodoni Moda', serif; font-weight: 700; font-size: clamp(19px, 2.6vw, 30px); text-wrap: balance; }
+.poster-cat { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.72; }
+.poster-play {
+  margin-top: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  opacity: 0.85; border: 1px solid currentColor; border-radius: 999px; padding: 7px 16px;
+}
+.frame.loaded .poster { display: none; }
 .frame-guard {
   position: absolute; inset: 0; z-index: 2; cursor: pointer;
   display: flex; align-items: flex-end; justify-content: center; padding-bottom: 18px;
@@ -227,7 +246,8 @@ body {
   color: #fff; background: rgba(0,0,0,0.55); padding: 6px 12px; border-radius: 999px;
   opacity: 0; transition: opacity 0.2s ease;
 }
-.frame:hover .frame-guard .hint { opacity: 1; }
+.frame:not(.loaded) .frame-guard .hint { opacity: 0; } /* the poster's own CTA is the hint pre-load */
+.frame.loaded:hover .frame-guard .hint { opacity: 1; }
 .frame.armed .frame-guard { pointer-events: none; }
 .frame.armed .frame-guard .hint { opacity: 0; }
 
@@ -278,7 +298,14 @@ body {
 
 <div class="entries" id="entries">
   <div class="card" id="card0">
-    <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/maw-bets.html" title="Maw Bet's" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+    <div class="frame" data-src="https://websitefuture.github.io/previews/maw-bets.html" data-title="Maw Bet's">
+      <div class="poster" style="background:#D9A32C;color:#17181A">
+        <span class="poster-name">Maw Bet's</span>
+        <span class="poster-cat">Family BBQ, Nauvoo AL</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+      <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+    </div>
     <div class="card-meta">
       <span class="num">01</span>
       <div class="info">
@@ -289,7 +316,14 @@ body {
     </div>
   </div>
   <div class="card" id="card1">
-    <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/smalltown-tattoos.html" title="Smalltown Tattoos" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+    <div class="frame" data-src="https://websitefuture.github.io/previews/smalltown-tattoos.html" data-title="Smalltown Tattoos">
+      <div class="poster" style="background:#C1352B;color:#F5F3EC">
+        <span class="poster-name">Smalltown Tattoos</span>
+        <span class="poster-cat">Tattoo &amp; Piercing Shop, Pikeville KY</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+      <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+    </div>
     <div class="card-meta">
       <span class="num">02</span>
       <div class="info">
@@ -300,7 +334,14 @@ body {
     </div>
   </div>
   <div class="card" id="card2">
-    <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/small-town-supply.html" title="Small Town Supply" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+    <div class="frame" data-src="https://websitefuture.github.io/previews/small-town-supply.html" data-title="Small Town Supply">
+      <div class="poster" style="background:#2F5D3A;color:#F5F3EC">
+        <span class="poster-name">Small Town Supply</span>
+        <span class="poster-cat">Hardware &amp; Gift Store, Gouverneur NY</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+      <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+    </div>
     <div class="card-meta">
       <span class="num">03</span>
       <div class="info">
@@ -322,7 +363,14 @@ body {
     <div class="hz-counter" id="hzCounter">01 <span style="opacity:0.5">/ 21</span></div>
     <div class="hz-row" id="hzRow">
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/greenlees-bakery.html" title="Greenlee's Bakery" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/greenlees-bakery.html" data-title="Greenlee's Bakery">
+          <div class="poster" style="background:#A8562E;color:#F5F3EC">
+        <span class="poster-name">Greenlee's Bakery</span>
+        <span class="poster-cat">Family Bakery, San Jose</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">04</span>
           <div class="info">
@@ -333,7 +381,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/wheel-away-cycle-center.html" title="Wheel Away Cycle Center" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/wheel-away-cycle-center.html" data-title="Wheel Away Cycle Center">
+          <div class="poster" style="background:#1F2326;color:#F5F3EC">
+        <span class="poster-name">Wheel Away Cycle Center</span>
+        <span class="poster-cat">Bike Shop, Campbell</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">05</span>
           <div class="info">
@@ -344,7 +399,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/de-anza-appliance.html" title="De Anza Appliance" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/de-anza-appliance.html" data-title="De Anza Appliance">
+          <div class="poster" style="background:#2F6FED;color:#F5F3EC">
+        <span class="poster-name">De Anza Appliance</span>
+        <span class="poster-cat">Appliance Repair</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">06</span>
           <div class="info">
@@ -355,7 +417,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/music-village.html" title="Music Village" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/music-village.html" data-title="Music Village">
+          <div class="poster" style="background:#FF5C7A;color:#F5F3EC">
+        <span class="poster-name">Music Village</span>
+        <span class="poster-cat">Instruments, Lessons &amp; Repairs</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">07</span>
           <div class="info">
@@ -366,7 +435,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/tire-outlet-auto-service.html" title="Tire Outlet Auto Service" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/tire-outlet-auto-service.html" data-title="Tire Outlet Auto Service">
+          <div class="poster" style="background:#171717;color:#F5F3EC">
+        <span class="poster-name">Tire Outlet Auto Service</span>
+        <span class="poster-cat">Steering, Suspension &amp; Brakes</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">08</span>
           <div class="info">
@@ -377,7 +453,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/campbell-vacuum-sewing.html" title="Campbell Vacuum & Sewing" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/campbell-vacuum-sewing.html" data-title="Campbell Vacuum & Sewing">
+          <div class="poster" style="background:#2F7A6C;color:#F5F3EC">
+        <span class="poster-name">Campbell Vacuum & Sewing</span>
+        <span class="poster-cat">Vacuum &amp; Sewing Services</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">09</span>
           <div class="info">
@@ -388,7 +471,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/golden-state-quilting.html" title="Golden State Quilting" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/golden-state-quilting.html" data-title="Golden State Quilting">
+          <div class="poster" style="background:#B5482F;color:#F5F3EC">
+        <span class="poster-name">Golden State Quilting</span>
+        <span class="poster-cat">Fabric, Classes &amp; Quilting</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">10</span>
           <div class="info">
@@ -399,7 +489,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/rex-cleaners.html" title="Rex Cleaners" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/rex-cleaners.html" data-title="Rex Cleaners">
+          <div class="poster" style="background:#2F4A3C;color:#F5F3EC">
+        <span class="poster-name">Rex Cleaners</span>
+        <span class="poster-cat">Dry Cleaning Since 1934</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">11</span>
           <div class="info">
@@ -410,7 +507,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/ko-kung-fu.html" title="KO Kung Fu" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/ko-kung-fu.html" data-title="KO Kung Fu">
+          <div class="poster" style="background:#D4A72C;color:#17181A">
+        <span class="poster-name">KO Kung Fu</span>
+        <span class="poster-cat">Bok Fu Do Martial Arts</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">12</span>
           <div class="info">
@@ -421,7 +525,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/diamond-shoe-repair.html" title="Diamond Shoe Repair" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/diamond-shoe-repair.html" data-title="Diamond Shoe Repair">
+          <div class="poster" style="background:#6B3A2C;color:#F5F3EC">
+        <span class="poster-name">Diamond Shoe Repair</span>
+        <span class="poster-cat">Cobbler Since 1984</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">13</span>
           <div class="info">
@@ -432,7 +543,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/doggie-grooming-styles.html" title="Doggie Grooming Styles" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/doggie-grooming-styles.html" data-title="Doggie Grooming Styles">
+          <div class="poster" style="background:#E8794F;color:#F5F3EC">
+        <span class="poster-name">Doggie Grooming Styles</span>
+        <span class="poster-cat">Pet Grooming</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">14</span>
           <div class="info">
@@ -443,7 +561,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/silicon-valley-business-center.html" title="Silicon Valley Business Center" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/silicon-valley-business-center.html" data-title="Silicon Valley Business Center">
+          <div class="poster" style="background:#10182A;color:#F5F3EC">
+        <span class="poster-name">Silicon Valley Business Center</span>
+        <span class="poster-cat">Coworking &amp; Business Services</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">15</span>
           <div class="info">
@@ -454,7 +579,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/satellite-workplaces.html" title="Satellite Workplaces" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/satellite-workplaces.html" data-title="Satellite Workplaces">
+          <div class="poster" style="background:#E9E7DF;color:#17181A">
+        <span class="poster-name">Satellite Workplaces</span>
+        <span class="poster-cat">Coworking Network</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">16</span>
           <div class="info">
@@ -465,7 +597,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/pro-alignment-brake.html" title="PRO Alignment & Brake" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/pro-alignment-brake.html" data-title="PRO Alignment & Brake">
+          <div class="poster" style="background:#C41E3A;color:#F5F3EC">
+        <span class="poster-name">PRO Alignment & Brake</span>
+        <span class="poster-cat">Auto Repair Shop</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">17</span>
           <div class="info">
@@ -476,7 +615,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/town-barber-shop.html" title="Town Barber Shop" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/town-barber-shop.html" data-title="Town Barber Shop">
+          <div class="poster" style="background:#8E2A22;color:#F5F3EC">
+        <span class="poster-name">Town Barber Shop</span>
+        <span class="poster-cat">Barber Shop, North Conway NH</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">18</span>
           <div class="info">
@@ -487,7 +633,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/jorges-upholstery.html" title="Jorge's Upholstery" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/jorges-upholstery.html" data-title="Jorge's Upholstery">
+          <div class="poster" style="background:#A23B2A;color:#F5F3EC">
+        <span class="poster-name">Jorge's Upholstery</span>
+        <span class="poster-cat">Reupholstery, Chicago IL</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">19</span>
           <div class="info">
@@ -498,7 +651,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/pleasant-hill-feed.html" title="Pleasant Hill Feed & Farm Supply" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/pleasant-hill-feed.html" data-title="Pleasant Hill Feed & Farm Supply">
+          <div class="poster" style="background:#3E5D48;color:#F5F3EC">
+        <span class="poster-name">Pleasant Hill Feed & Farm Supply</span>
+        <span class="poster-cat">Feed &amp; Farm Supply, Pleasant Hill OR</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">20</span>
           <div class="info">
@@ -509,7 +669,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/charles-cafeteria.html" title="Charles' Cafeteria & Grill" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/charles-cafeteria.html" data-title="Charles' Cafeteria & Grill">
+          <div class="poster" style="background:#8C2418;color:#F5F3EC">
+        <span class="poster-name">Charles' Cafeteria & Grill</span>
+        <span class="poster-cat">Soul Food, Fayette AL</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">21</span>
           <div class="info">
@@ -520,7 +687,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/i-town-pawn.html" title="I Town Pawn" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/i-town-pawn.html" data-title="I Town Pawn">
+          <div class="poster" style="background:#33503A;color:#F5F3EC">
+        <span class="poster-name">I Town Pawn</span>
+        <span class="poster-cat">Pawn Shop, Indianola IA</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">22</span>
           <div class="info">
@@ -531,7 +705,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/tilton-village-thrift.html" title="Tilton Village Thrift & Antiques" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/tilton-village-thrift.html" data-title="Tilton Village Thrift & Antiques">
+          <div class="poster" style="background:#A8894F;color:#F5F3EC">
+        <span class="poster-name">Tilton Village Thrift & Antiques</span>
+        <span class="poster-cat">Thrift &amp; Antiques, Tilton NH</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">23</span>
           <div class="info">
@@ -542,7 +723,14 @@ body {
         </div>
       </div>
       <div class="hz-card">
-        <div class="frame"><iframe data-src="https://websitefuture.github.io/previews/simpler-times-consignment.html" title="Simpler Times Consignment Co-Op" tabindex="-1" class="lazy-frame"></iframe><div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div></div>
+        <div class="frame" data-src="https://websitefuture.github.io/previews/simpler-times-consignment.html" data-title="Simpler Times Consignment Co-Op">
+          <div class="poster" style="background:#8C3A2E;color:#F5F3EC">
+        <span class="poster-name">Simpler Times Consignment Co-Op</span>
+        <span class="poster-cat">Consignment &amp; Antiques, Palm PA</span>
+        <span class="poster-play">&#9654; View live site</span>
+      </div>
+          <div class="frame-guard"><span class="hint">move away to scroll page</span></div>
+        </div>
         <div class="card-meta">
           <span class="num">24</span>
           <div class="info">
@@ -840,59 +1028,34 @@ body {
              // pass up front and cache it -- tick() never needs to again.
   requestAnimationFrame(tick);
 
-  // native loading="lazy" wasn't actually deferring these -- measured all 14 real
-  // business sites loading within ~3s of page load regardless, since Chrome's own
-  // lazy-load lookahead distance is generous relative to this page's height. Each one
-  // is a full site with its own fonts/CSS/DOM, so 14 loading at once was the real
-  // cause of the lag. This IntersectionObserver gives real, tight control instead:
-  // only set src (triggering the actual load) once a card is within 200px of view.
-  var lazyFrames = Array.prototype.slice.call(document.querySelectorAll('.lazy-frame'));
-
-  // Scrolling FAST past several cards at once used to fire all their loads in the same
-  // tick -- each one is a real site with its own HTML/CSS/embedded photos (some over
-  // 1MB), so 3-6 of them starting to parse simultaneously piled up on the main thread
-  // right when it needed to be free for scrolling, which is exactly what showed up as
-  // stutter during fast scrolling specifically. A small queue spaces the actual loads
-  // out instead of bursting them, without changing how early loading starts (rootMargin
-  // still gives real lead time -- this only staggers what happens once several qualify
-  // at once).
-  var loadQueue = [];
-  var queueBusy = false;
-  function drainQueue() {
-    if (queueBusy || loadQueue.length === 0) return;
-    queueBusy = true;
-    var f = loadQueue.shift();
-    if (f.dataset.src) { f.src = f.dataset.src; f.removeAttribute('data-src'); }
-    setTimeout(function () { queueBusy = false; drainQueue(); }, 120);
-  }
-
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        io.unobserve(entry.target);
-        loadQueue.push(entry.target);
-      });
-      drainQueue();
-      // 200px wasn't enough lead time -- each site takes a moment to actually fetch
-      // and render, so cards were popping in visibly right as they came into view.
-      // 800px on every side (a fixed pixel value, not a percentage -- more reliably
-      // supported) gives loading a real head start in both the vertical section and
-      // the horizontal one, without going back to "everything loads at once" (this
-      // page is far taller/wider than 800px, so it still stays genuinely lazy).
-    }, { rootMargin: '800px' });
-    lazyFrames.forEach(function (f) { io.observe(f); });
-  } else {
-    lazyFrames.forEach(function (f) { if (f.dataset.src) f.src = f.dataset.src; });
-  }
-
-  // iframes are separate browsing contexts -- a wheel event over one never reaches our
-  // window listener, which made the page feel "stuck" while hovering a preview. Guard
-  // overlay intercepts by default (wheel bubbles to window as normal); click arms it so
-  // the iframe itself becomes interactive, and leaving the card disarms it again.
+  // Every previous version of this tried to make loading 24 separate full websites
+  // (some 1MB+ of embedded real photos) happen at the "right time" during scroll --
+  // lazy-loading with lookahead margins, then staggering the loads so they didn't pile
+  // up. All of that was still fundamentally loading every card sooner or later just
+  // from scrolling past it. The actual fix is not loading them from scrolling at all:
+  // each frame shows a static, zero-cost poster (color + name + category, no network
+  // request, no parsing) until someone actually clicks in. Only then does the real
+  // iframe get created. Scrolling past 24 cards now touches nothing but plain DOM/CSS
+  // no matter how fast you go, because none of them are "live" until asked for.
+  //
+  // iframes are also separate browsing contexts -- a wheel event over one never
+  // reaches our window listener, which made the page feel "stuck" while hovering a
+  // loaded preview. The guard overlay intercepts by default (wheel bubbles to window
+  // as normal, and pre-load it's what you actually click to load the site); click
+  // "arms" it so the iframe becomes interactive, and leaving the card disarms it again.
   document.querySelectorAll('.frame').forEach(function (frame) {
     var guard = frame.querySelector('.frame-guard');
-    guard.addEventListener('click', function () { frame.classList.add('armed'); });
+    guard.addEventListener('click', function () {
+      if (!frame.classList.contains('loaded')) {
+        var iframe = document.createElement('iframe');
+        iframe.src = frame.dataset.src;
+        iframe.title = frame.dataset.title || '';
+        iframe.tabIndex = -1;
+        frame.insertBefore(iframe, frame.firstChild);
+        frame.classList.add('loaded');
+      }
+      frame.classList.add('armed');
+    });
     frame.addEventListener('mouseleave', function () { frame.classList.remove('armed'); });
   });
 
