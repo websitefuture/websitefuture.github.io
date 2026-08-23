@@ -448,7 +448,9 @@ function mulberry32(seed) {
 
   SPIRAL_BUSINESSES.forEach((biz, i) => {
     const t = i / (SPIRAL_BUSINESSES.length - 1);
-    const w = 2.6, h = 1.75;
+    const area = 4.0 + rand() * 1.1;
+    const cardAspect = 0.55 + rand() * 1.65; // <1 portrait .. >1 landscape, mixed like the reference
+    const w = Math.sqrt(area * cardAspect), h = Math.sqrt(area / cardAspect);
     const geo = new THREE.PlaneGeometry(w, h, 24, 16);
     const pos = geo.attributes.position;
     const bendAmp = 0.12 + rand() * 0.34;
@@ -461,7 +463,18 @@ function mulberry32(seed) {
     }
     geo.computeVertexNormals();
 
-    const tex = loader.load(biz.img);
+    const planeAspect = w / h;
+    const tex = loader.load(biz.img, (t) => {
+      const imgAspect = t.image.width / t.image.height;
+      if (imgAspect > planeAspect) {
+        const s = planeAspect / imgAspect;
+        t.repeat.set(s, 1); t.offset.set((1 - s) / 2, 0);
+      } else {
+        const s = imgAspect / planeAspect;
+        t.repeat.set(1, s); t.offset.set(0, (1 - s) / 2);
+      }
+      t.needsUpdate = true;
+    });
     tex.colorSpace = THREE.SRGBColorSpace;
     const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.88, metalness: 0.04, side: THREE.DoubleSide });
     const mesh = new THREE.Mesh(geo, mat);
@@ -539,60 +552,6 @@ function mulberry32(seed) {
 </script>
 
 <div class="entries" id="entries">
-  <div class="card" id="card0">
-    <div class="frame" data-src="https://websitefuture.github.io/previews/teasers/maw-bets.html" data-full-src="https://websitefuture.github.io/previews/maw-bets.html" data-title="Maw Bet's">
-      <div class="poster" style="background:#D9A32C;color:#F5F3EC;background-image:url('card-shots/maw-bets.jpg')">
-        <span class="poster-name">Maw Bet's</span>
-        <span class="poster-cat">Family BBQ, Nauvoo AL</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-      <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-    </div>
-    <div class="card-meta">
-      <span class="num">01</span>
-      <div class="info">
-        <h2 class="serif">Maw Bet's</h2>
-        <p>Family BBQ, Nauvoo AL</p>
-      </div>
-      <span class="tag">Shipped</span>
-    </div>
-  </div>
-  <div class="card" id="card1">
-    <div class="frame" data-src="https://websitefuture.github.io/previews/teasers/smalltown-tattoos.html" data-full-src="https://websitefuture.github.io/previews/smalltown-tattoos.html" data-title="Smalltown Tattoos">
-      <div class="poster" style="background:#C1352B;color:#F5F3EC;background-image:url('card-shots/smalltown-tattoos.jpg')">
-        <span class="poster-name">Smalltown Tattoos</span>
-        <span class="poster-cat">Tattoo &amp; Piercing Shop, Pikeville KY</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-      <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-    </div>
-    <div class="card-meta">
-      <span class="num">02</span>
-      <div class="info">
-        <h2 class="serif">Smalltown Tattoos</h2>
-        <p>Tattoo &amp; Piercing Shop, Pikeville KY</p>
-      </div>
-      <span class="tag">Shipped</span>
-    </div>
-  </div>
-  <div class="card" id="card2">
-    <div class="frame" data-src="https://websitefuture.github.io/previews/teasers/small-town-supply.html" data-full-src="https://websitefuture.github.io/previews/small-town-supply.html" data-title="Small Town Supply">
-      <div class="poster" style="background:#2F5D3A;color:#F5F3EC;background-image:url('card-shots/small-town-supply.jpg')">
-        <span class="poster-name">Small Town Supply</span>
-        <span class="poster-cat">Hardware &amp; Gift Store, Gouverneur NY</span>
-        <span class="poster-play">&#9654; View live site</span>
-      </div>
-      <div class="frame-guard"><span class="hint">click to interact &middot; move away to scroll page</span></div>
-    </div>
-    <div class="card-meta">
-      <span class="num">03</span>
-      <div class="info">
-        <h2 class="serif">Small Town Supply</h2>
-        <p>Hardware &amp; Gift Store, Gouverneur NY</p>
-      </div>
-      <span class="tag">Shipped</span>
-    </div>
-  </div>
 </div>
 
 <div class="hz-intro">
@@ -793,7 +752,7 @@ function mulberry32(seed) {
     <div class="galaxy-inner">
       <canvas id="starCanvas"></canvas>
       <div class="galaxy-intro">
-        <p class="eyebrow" style="color:#fff">37 more, out there.</p>
+        <p class="eyebrow" style="color:#fff">40 more, out there.</p>
         <h2 class="serif" style="color:#fff">Click one to go straight there.</h2>
       </div>
       <div class="floating-links">
@@ -834,6 +793,9 @@ function mulberry32(seed) {
 <a class="float-chip" href="https://websitefuture.github.io/previews/blackacyd-metalworks.html" target="_blank" rel="noopener" style="top:50.1%;left:31.1%;--dx1:-5px;--dy1:-22px;--dx2:-18px;--dy2:3px;--dx3:-2px;--dy3:-2px;animation-duration:9.4s;animation-delay:-1.0s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Blackacyd Metalworks</span></a>
 <a class="float-chip" href="https://websitefuture.github.io/previews/rocky-mountain-framing-engraving.html" target="_blank" rel="noopener" style="top:38.8%;left:57.0%;--dx1:8px;--dy1:10px;--dx2:21px;--dy2:7px;--dx3:4px;--dy3:12px;animation-duration:11.4s;animation-delay:-16.0s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Rocky Mountain Framing & Engraving</span></a>
 <a class="float-chip" href="https://websitefuture.github.io/previews/somerset-strings.html" target="_blank" rel="noopener" style="top:39.0%;left:42.1%;--dx1:-1px;--dy1:-14px;--dx2:-6px;--dy2:-11px;--dx3:27px;--dy3:-17px;animation-duration:12.6s;animation-delay:-6.2s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Somerset Strings</span></a>
+<a class="float-chip" href="https://websitefuture.github.io/previews/maw-bets.html" target="_blank" rel="noopener" style="top:37.7%;left:18.6%;--dx1:8px;--dy1:-24px;--dx2:2px;--dy2:-8px;--dx3:-25px;--dy3:0px;animation-duration:10.2s;animation-delay:-10.6s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Maw Bet's</span></a>
+<a class="float-chip" href="https://websitefuture.github.io/previews/smalltown-tattoos.html" target="_blank" rel="noopener" style="top:19.9%;left:13.2%;--dx1:-4px;--dy1:18px;--dx2:-21px;--dy2:-15px;--dx3:7px;--dy3:25px;animation-duration:12.9s;animation-delay:-11.3s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Smalltown Tattoos</span></a>
+<a class="float-chip" href="https://websitefuture.github.io/previews/small-town-supply.html" target="_blank" rel="noopener" style="top:83.3%;left:9.2%;--dx1:20px;--dy1:-12px;--dx2:-20px;--dy2:-21px;--dx3:-11px;--dy3:18px;animation-duration:10.9s;animation-delay:-8.1s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Small Town Supply</span></a>
       </div>
     </div>
   </div>
