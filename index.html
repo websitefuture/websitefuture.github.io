@@ -448,12 +448,15 @@ function mulberry32(seed) {
   const group = new THREE.Group();
   scene.add(group);
 
-  // The cards sit along one continuous curved path (not scattered independently) --
-  // each one's position comes from curve(t) plus only a small jitter, and its rotation
-  // is derived from the curve's own tangent direction, so the whole set reads as a
-  // single flowing ribbon the way the reference's spiral does.
-  function curveX(t) { return 5.6 - t * 11.2 + Math.sin(t * Math.PI * 0.9 + 0.4) * 0.9; }
-  function curveY(t) { return 2.5 - t * 5.7 + Math.cos(t * Math.PI * 0.75) * 0.5; }
+  // The cards ride a closed loop, continuously in motion rather than sitting fixed --
+  // each card's t advances with elapsed time and wraps at 1, so the whole set slowly
+  // orbits, cards drifting into view on one side and out the other, forever, with no
+  // user input needed. Position and rotation are both re-derived from the curve every
+  // frame instead of being set once at creation.
+  const LOOP_SECONDS = 130;
+  function curveX(t) { return Math.cos(t * Math.PI * 2) * 4.6; }
+  function curveY(t) { return Math.sin(t * Math.PI * 2) * 2.0; }
+  function curveZ(t) { return Math.sin(t * Math.PI * 2) * 2.2; }
 
   SPIRAL_BUSINESSES.forEach((biz, i) => {
     const t = i / (SPIRAL_BUSINESSES.length - 1);
@@ -488,18 +491,13 @@ function mulberry32(seed) {
     const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.88, metalness: 0.04, side: THREE.DoubleSide });
     const mesh = new THREE.Mesh(geo, mat);
 
-    const cx = curveX(t), cy = curveY(t);
-    const dt = 0.001;
-    const tangentAngle = Math.atan2(curveY(t + dt) - cy, curveX(t + dt) - cx);
-    mesh.position.set(
-      cx + (rand() - 0.5) * 1.1,
-      cy + (rand() - 0.5) * 0.9,
-      (i - (SPIRAL_BUSINESSES.length - 1) / 2) * 0.09 + (rand() - 0.5) * 0.3
-    );
-    mesh.rotation.set((rand() - 0.5) * 0.22, (rand() - 0.5) * 0.5, tangentAngle * 0.18 + (rand() - 0.5) * 0.3);
     const scale = 0.85 + rand() * 0.35;
     mesh.scale.set(scale, scale, scale);
-    mesh.userData = { href: biz.href, name: biz.name, phase: rand() * Math.PI * 2, baseRot: mesh.rotation.clone(), baseScale: scale };
+    mesh.userData = {
+      href: biz.href, name: biz.name,
+      t0: t, phase: rand() * Math.PI * 2, baseScale: scale,
+      jitter: { x: (rand() - 0.5) * 0.7, y: (rand() - 0.5) * 0.6, rx: (rand() - 0.5) * 0.22, ry: (rand() - 0.5) * 0.5, rz: (rand() - 0.5) * 0.25 },
+    };
     group.add(mesh);
     meshes.push(mesh);
   });
@@ -574,15 +572,27 @@ function mulberry32(seed) {
   window.addEventListener('resize', onResize);
 
   const clock = new THREE.Clock();
+  const dt = 0.001;
   function animate() {
     requestAnimationFrame(animate);
-    const t = clock.getElapsedTime();
+    const elapsed = clock.getElapsedTime();
     meshes.forEach((m) => {
-      const p = m.userData.phase;
-      m.rotation.x = m.userData.baseRot.x + Math.sin(t * 0.25 + p) * 0.04;
-      m.rotation.y = m.userData.baseRot.y + Math.cos(t * 0.2 + p) * 0.05;
-      const targetScale = m.userData.baseScale * (m === hovered ? 1.2 : 1);
+      const u = m.userData;
+      const t = (((u.t0 + elapsed / LOOP_SECONDS) % 1) + 1) % 1;
+      const cx = curveX(t), cy = curveY(t), cz = curveZ(t);
+      const tangentAngle = Math.atan2(curveY(t + dt) - cy, curveX(t + dt) - cx);
+      m.position.set(cx + u.jitter.x, cy + u.jitter.y, cz);
+      m.rotation.set(
+        u.jitter.rx + Math.sin(elapsed * 0.25 + u.phase) * 0.04,
+        u.jitter.ry + Math.cos(elapsed * 0.2 + u.phase) * 0.05,
+        tangentAngle * 0.2 + u.jitter.rz
+      );
+      // cards nearer the camera (larger cz) read as bigger, like real depth, on top of
+      // their own base size and the hover bump
+      const depthScale = THREE.MathUtils.mapLinear(cz, -2.2, 2.2, 0.82, 1.18);
+      const targetScale = u.baseScale * depthScale * (m === hovered ? 1.2 : 1);
       m.scale.setScalar(THREE.MathUtils.lerp(m.scale.x, targetScale, 0.15));
+      m.renderOrder = cz;
     });
 
     if (!isDragging) {
