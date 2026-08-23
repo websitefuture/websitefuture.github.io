@@ -431,7 +431,7 @@ function mulberry32(seed) {
   const camera = new THREE.PerspectiveCamera(42, field.clientWidth / field.clientHeight, 0.1, 100);
   camera.position.set(0, 0, 11);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setSize(field.clientWidth, field.clientHeight, false);
 
@@ -447,6 +447,13 @@ function mulberry32(seed) {
   const meshes = [];
   const group = new THREE.Group();
   scene.add(group);
+
+  // The cards sit along one continuous curved path (not scattered independently) --
+  // each one's position comes from curve(t) plus only a small jitter, and its rotation
+  // is derived from the curve's own tangent direction, so the whole set reads as a
+  // single flowing ribbon the way the reference's spiral does.
+  function curveX(t) { return 5.6 - t * 11.2 + Math.sin(t * Math.PI * 0.9 + 0.4) * 0.9; }
+  function curveY(t) { return 2.5 - t * 5.7 + Math.cos(t * Math.PI * 0.75) * 0.5; }
 
   SPIRAL_BUSINESSES.forEach((biz, i) => {
     const t = i / (SPIRAL_BUSINESSES.length - 1);
@@ -481,15 +488,16 @@ function mulberry32(seed) {
     const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.88, metalness: 0.04, side: THREE.DoubleSide });
     const mesh = new THREE.Mesh(geo, mat);
 
-    const baseX = 5.8 - t * 11.6;
-    const baseY = 3.0 - t * 6.4;
+    const cx = curveX(t), cy = curveY(t);
+    const dt = 0.001;
+    const tangentAngle = Math.atan2(curveY(t + dt) - cy, curveX(t + dt) - cx);
     mesh.position.set(
-      baseX + (rand() - 0.5) * 6.6,
-      baseY + (rand() - 0.5) * 4.8,
-      (rand() - 0.5) * 2.6
+      cx + (rand() - 0.5) * 1.1,
+      cy + (rand() - 0.5) * 0.9,
+      (i - (SPIRAL_BUSINESSES.length - 1) / 2) * 0.09 + (rand() - 0.5) * 0.3
     );
-    mesh.rotation.set((rand() - 0.5) * 0.3, (rand() - 0.5) * 0.85, (rand() - 0.5) * 0.7);
-    const scale = 0.8 + rand() * 0.45;
+    mesh.rotation.set((rand() - 0.5) * 0.22, (rand() - 0.5) * 0.5, tangentAngle * 0.18 + (rand() - 0.5) * 0.3);
+    const scale = 0.85 + rand() * 0.35;
     mesh.scale.set(scale, scale, scale);
     mesh.userData = { href: biz.href, name: biz.name, phase: rand() * Math.PI * 2, baseRot: mesh.rotation.clone(), baseScale: scale };
     group.add(mesh);
