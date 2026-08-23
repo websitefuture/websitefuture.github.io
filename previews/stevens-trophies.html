@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stevens Trophies | Custom Trophies & Awards, Coffeyville KS</title>
+<meta name="description" content="Custom trophies, awards, and embroidery in Coffeyville, Kansas.">
+<meta property="og:title" content="Stevens Trophies">
+<meta property="og:description" content="Custom trophies and awards in Coffeyville, KS.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2032%2032'%3E%3Crect%20width%3D'32'%20height%3D'32'%20fill%3D'%23201A0E'%2F%3E%3Ctext%20x%3D'6'%20y%3D'23'%20font-family%3D'Georgia%2Cserif'%20font-size%3D'16'%20font-weight%3D'700'%20fill%3D'%23D9B45C'%3ES%3C%2Ftext%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EDEAE3; --surface: #F8F6F0; --ink: #201A0E; --inkSoft: #5C4F35;
+    --line: #201A0E; --accent: #9C7A2E; --accentDeep: #755B20; --onAccent: #F8F6F0;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #150F07; --surface: #1D160C; --ink: #EFE7D2; --inkSoft: #BFAD82;
+      --line: #EFE7D2; --accent: #D9B45C; --accentDeep: #E7C784; --onAccent: #150F07;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #150F07; --surface: #1D160C; --ink: #EFE7D2; --inkSoft: #BFAD82;
+    --line: #EFE7D2; --accent: #D9B45C; --accentDeep: #E7C784; --onAccent: #150F07;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Space Mono', monospace; font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3 { font-family: 'Bebas Neue', serif; margin: 0; }
+  *:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+  .label { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--inkSoft); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; font-size: 12.5px; font-weight: 700; letter-spacing: 0.03em; border: 1.5px solid var(--line); cursor: pointer; font-family: 'Space Mono', monospace; }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--onAccent); }
+  .btn-ghost { background: transparent; color: var(--ink); }
+
+  header.top { border-bottom: 1.5px solid var(--line); padding: 18px 0; }
+  .top-row { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; }
+  .top-row .word { font-family: 'Bebas Neue', serif; font-size: 16px; font-weight: 700; }
+
+  .dossier { padding: 56px 0 20px; }
+  .card { border: 1.5px solid var(--line); padding: 40px; position: relative; }
+  .corner { position: absolute; width: 14px; height: 14px; }
+  .corner.tl { top: -1.5px; left: -1.5px; border-top: 3px solid var(--accent); border-left: 3px solid var(--accent); }
+  .corner.tr { top: -1.5px; right: -1.5px; border-top: 3px solid var(--accent); border-right: 3px solid var(--accent); }
+  .corner.bl { bottom: -1.5px; left: -1.5px; border-bottom: 3px solid var(--accent); border-left: 3px solid var(--accent); }
+  .corner.br { bottom: -1.5px; right: -1.5px; border-bottom: 3px solid var(--accent); border-right: 3px solid var(--accent); }
+  .card .label { margin-bottom: 18px; }
+  .card h1 { font-size: clamp(30px, 5.4vw, 48px); line-height: 1.1; max-width: 18ch; }
+  .card .dek { color: var(--inkSoft); font-family: 'Space Mono', monospace; font-size: 14.5px; max-width: 56ch; margin-top: 18px; }
+  .card .cta-row { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+  .fact-table { margin-top: 36px; border-top: 1px dashed var(--line); padding-top: 24px; display: grid; grid-template-columns: repeat(2,1fr); gap: 14px 24px; }
+  .fact-table div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dotted var(--line); padding-bottom: 8px; font-size: 13px; }
+  .fact-table dt { color: var(--inkSoft); }
+  .fact-table dd { margin: 0; font-weight: 700; }
+
+  .menu-sec { padding: 70px 0; }
+  .menu-sec .label { color: var(--accent); }
+  .menu-sec h2 { font-size: clamp(24px, 3.6vw, 34px); margin-top: 8px; }
+  .menu-list { margin-top: 32px; border-top: 1.5px solid var(--line); }
+  .menu-item { display: flex; justify-content: space-between; gap: 20px; align-items: baseline; padding: 20px 0; border-bottom: 1.5px solid var(--line); }
+  .menu-item .t h3 { font-size: 17px; font-family: 'Bebas Neue', serif; }
+  .menu-item .t p { margin: 6px 0 0; color: var(--inkSoft); font-size: 13px; max-width: 52ch; }
+  .menu-item .n { font-family: 'Bebas Neue', serif; color: var(--accent); font-size: 13px; white-space: nowrap; }
+
+  .quote-sec { background: var(--surface); padding: 60px 0; border-top: 1.5px solid var(--line); border-bottom: 1.5px solid var(--line); }
+  .quote-sec p { font-family: 'Bebas Neue', serif; font-size: clamp(19px, 2.6vw, 26px); max-width: 40ch; }
+  .quote-sec .label { margin-top: 16px; }
+
+  .loc-sec { padding: 60px 0 90px; }
+  .loc-sec h2 { font-size: clamp(24px, 3.6vw, 34px); margin-top: 8px; }
+  .loc-card { border: 1.5px solid var(--line); padding: 30px; margin-top: 32px; display: grid; gap: 20px; }
+  .loc-card .row { display: flex; justify-content: space-between; gap: 16px; font-size: 13.5px; border-bottom: 1px dotted var(--line); padding-bottom: 14px; }
+  .loc-card .row dt { color: var(--inkSoft); } .loc-card .row dd { margin: 0; font-weight: 700; }
+
+  footer.f { border-top: 1.5px solid var(--line); padding: 22px 0; font-size: 11px; color: var(--inkSoft); }
+  .foot-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+  @media (max-width: 480px) { .wrap { padding: 0 18px; } .card { padding: 26px; } .fact-table { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body><header class="top">
+  <div class="wrap top-row">
+    <span class="word">Stevens Trophies</span>
+    <span>(620) 252-9106</span>
+  </div>
+</header>
+
+<main id="top">
+  <section class="dossier">
+    <div class="wrap">
+      <div class="card">
+        <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+        <p class="label">Coffeyville, Kansas &middot; Trophies &amp; Awards</p>
+        <h1>Family owned, <em>built to last.</em></h1>
+        <p class="dek">Stevens Trophies is a family owned Coffeyville shop building custom trophies, awards, and embroidered gear for the community.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="tel:+16202529106">Call (620) 252-9106</a>
+          <a class="btn btn-ghost" href="#location">Get Directions</a>
+        </div>
+        <dl class="fact-table">
+          <div><dt>Ownership</dt><dd>Family Owned</dd></div>
+          <div><dt>Address</dt><dd>Coffeyville, KS</dd></div>
+          <div><dt>Phone</dt><dd>(620) 252-9106</dd></div>
+          <div><dt>Reviews</dt><dd>&#9733; 5.0 on Google</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="menu-sec" id="services">
+    <div class="wrap">
+      <p class="label">What We Do</p>
+      <h2>Trophies, awards, and embroidery.</h2>
+      <div class="menu-list">
+        <div class="menu-item">
+          <div class="t"><h3>Custom Trophies</h3><p>Trophies for teams and organizations, made to order.</p></div>
+          <div class="n">01</div>
+        </div>
+        <div class="menu-item">
+          <div class="t"><h3>Engraved Awards</h3><p>Plaques and awards engraved to your exact specs.</p></div>
+          <div class="n">02</div>
+        </div>
+        <div class="menu-item">
+          <div class="t"><h3>Embroidery</h3><p>Embroidered apparel and gear alongside custom awards.</p></div>
+          <div class="n">03</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="quote-sec">
+    <div class="wrap">
+      <p>&ldquo;Great people. Family owned and definitely knows how to make what you want. Turn around time is super fast.&rdquo;</p>
+      <p class="label">Google Review &middot; 5.0 on Google</p>
+    </div>
+  </section>
+
+  <section class="loc-sec" id="location">
+    <div class="wrap">
+      <p class="label">Visit Us</p>
+      <h2>Find us on County Road 1400.</h2>
+      <div class="loc-card">
+        <div class="row"><dt>Address</dt><dd>4550 County Rd 1400, Coffeyville, KS 67337</dd></div>
+        <div class="row"><dt>Phone</dt><dd>(620) 252-9106</dd></div>
+        <div class="row" style="border-bottom:none;"><dt>Hours</dt><dd>Call ahead for current hours.</dd></div>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://www.google.com/maps/search/?api=1&query=4550%20County%20Rd%201400%20Coffeyville%2C%20KS%2067337" target="_blank" rel="noopener">Get Directions</a>
+          <a class="btn btn-ghost" href="tel:+16202529106">Call Us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="f">
+  <div class="wrap foot-row">
+    <span>&copy; 2026 Stevens Trophies</span>
+    <span>4550 County Rd 1400, Coffeyville, KS 67337</span>
+  </div>
+</footer>
+</body>
+</html>

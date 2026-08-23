@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Southwest Ranch Embroidery & Designs | Liberal, KS</title>
+<meta name="description" content="Custom embroidery for shirts, hats, and business apparel in Liberal, Kansas.">
+<meta property="og:title" content="Southwest Ranch Embroidery & Designs">
+<meta property="og:description" content="Custom embroidery in Liberal, KS.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2032%2032'%3E%3Crect%20width%3D'32'%20height%3D'32'%20fill%3D'%232C1B0F'%2F%3E%3Ctext%20x%3D'6'%20y%3D'23'%20font-family%3D'Georgia%2Cserif'%20font-size%3D'16'%20font-weight%3D'700'%20fill%3D'%23E5975E'%3ES%3C%2Ftext%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bevan&family=Nunito+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F3E9DC; --surface: #FBF4E9; --ink: #2C1B0F; --inkSoft: #6B4E33;
+    --line: rgba(44,27,15,0.16); --accent: #B85C33; --accentDeep: #8C4322; --onAccent: #FBF4E9;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #170F08; --surface: #20150C; --ink: #F0E1CC; --inkSoft: #C3A47C;
+      --line: rgba(240,225,204,0.16); --accent: #E5975E; --accentDeep: #EDB585; --onAccent: #170F08;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #170F08; --surface: #20150C; --ink: #F0E1CC; --inkSoft: #C3A47C;
+    --line: rgba(240,225,204,0.16); --accent: #E5975E; --accentDeep: #EDB585; --onAccent: #170F08;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Nunito Sans', sans-serif; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3 { font-family: 'Bevan', serif; margin: 0; font-weight: 400; }
+  *:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; font-size: 13.5px; font-weight: 700; border-radius: 3px; cursor: pointer; }
+  .btn-primary { background: var(--onAccent); color: var(--accentDeep); }
+  .btn-outline { border: 1.5px solid currentColor; }
+
+  .shell { display: flex; min-height: 100vh; flex-direction: column; }
+  .side { background: var(--ink); color: var(--bg); padding: 26px 28px; display: flex; align-items: center; justify-content: space-between; }
+  .side .mark { font-family: 'Bevan', serif; font-weight: 700; font-size: 17px; }
+  .side nav { display: none; gap: 22px; font-size: 13px; }
+  .side nav a { opacity: 0.8; }
+  .side nav a:hover { opacity: 1; }
+  .menu-btn { background: none; border: 1px solid rgba(255,255,255,0.4); color: inherit; width: 38px; height: 38px; }
+
+  .block { padding: 64px 28px; }
+  .hero-block { background: var(--accent); color: var(--onAccent); }
+  .hero-block .kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.85; }
+  .hero-block h1 { font-size: clamp(32px, 7vw, 54px); line-height: 1.05; margin-top: 16px; max-width: 16ch; }
+  .hero-block p { font-size: 16px; max-width: 44ch; margin-top: 18px; opacity: 0.92; }
+  .hero-block .cta-row { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+
+  .fact-strip { display: grid; grid-template-columns: repeat(2,1fr); border-top: 1px solid rgba(255,255,255,0.25); margin-top: 40px; padding-top: 24px; gap: 16px; }
+  .fact-strip dt { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.75; margin-bottom: 4px; }
+  .fact-strip dd { margin: 0; font-weight: 700; }
+
+  .svc-block h2 { font-size: clamp(24px, 4vw, 34px); max-width: 18ch; }
+  .svc-block .kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+  .svc-intro { color: var(--inkSoft); max-width: 54ch; margin-top: 14px; font-size: 14.5px; }
+  .svc-rows { margin-top: 36px; display: grid; gap: 2px; }
+  .svc-row { border-left: 4px solid var(--accent); background: var(--surface); padding: 22px 24px; }
+  .svc-row h3 { font-size: 17px; margin-bottom: 8px; }
+  .svc-row p { margin: 0; color: var(--inkSoft); font-size: 14px; }
+
+  .quote-block { background: var(--surface); }
+  .quote-block blockquote { margin: 0; font-family: 'Bevan', serif; font-size: clamp(20px, 3vw, 28px); line-height: 1.4; max-width: 34ch; }
+  .quote-block cite { display: block; margin-top: 18px; font-style: normal; font-size: 13px; color: var(--inkSoft); }
+
+  .loc-block { display: grid; grid-template-columns: 1fr; }
+  .loc-half { padding: 48px 28px; }
+  .loc-half.a { background: var(--ink); color: var(--bg); }
+  .loc-half.b { background: var(--surface); }
+  .loc-half .label { font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; margin-bottom: 12px; }
+  .loc-half .big { font-family: 'Bevan', serif; font-size: 22px; margin-bottom: 20px; }
+
+  .end-block { text-align: center; }
+  .end-block h2 { font-size: clamp(26px, 4.4vw, 40px); max-width: 18ch; margin: 0 auto; }
+  .end-block .cta-row { justify-content: center; margin-top: 26px; }
+
+  footer.f { padding: 24px 28px; font-size: 11.5px; color: var(--inkSoft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+  #mobile-menu { display: none; position: fixed; inset: 0; z-index: 50; background: var(--ink); color: var(--bg); padding: 24px 28px; }
+  #mobile-menu.open { display: block; }
+  #mobile-menu .close-row { display: flex; justify-content: flex-end; }
+  #mobile-menu nav { display: flex; flex-direction: column; gap: 24px; margin-top: 40px; font-family: 'Bevan', serif; font-size: 22px; }
+
+  @media (min-width: 760px) {
+    .shell { flex-direction: row; }
+    .side { flex-direction: column; align-items: flex-start; justify-content: flex-start; width: 220px; position: sticky; top: 0; height: 100vh; gap: 60px; }
+    .side nav { display: flex; flex-direction: column; }
+    .menu-btn { display: none; }
+    .main { flex: 1; min-width: 0; }
+    .block { padding: 90px 60px; }
+    .loc-block { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 480px) { .block { padding: 48px 20px; } .fact-strip { grid-template-columns: 1fr 1fr; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body><div class="shell">
+  <div class="side">
+    <span class="mark">Southwest Ranch Embroidery & Designs</span>
+    <nav>
+      <a href="#services">Services</a>
+      <a href="#location">Visit</a>
+      <a href="tel:+16206242642">(620) 624-2642</a>
+    </nav>
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+
+  <div id="mobile-menu">
+    <div class="close-row">
+      <button class="menu-btn" id="menu-close" aria-label="Close" style="display:inline-flex;align-items:center;justify-content:center;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <nav>
+      <a href="#services">Services</a>
+      <a href="#location">Visit</a>
+      <a href="tel:+16206242642">Call (620) 624-2642</a>
+    </nav>
+  </div>
+
+  <div class="main" id="top">
+    <section class="block hero-block">
+      <p class="kicker">Liberal, Kansas &middot; Custom Embroidery</p>
+      <h1>Attentive to <em>every detail.</em></h1>
+      <p>Southwest Ranch Embroidery & Designs turns shirts and hats into custom pieces for Liberal, done with real attention to detail.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="tel:+16206242642">Call (620) 624-2642</a>
+        <a class="btn btn-outline" href="#location">Get Directions</a>
+      </div>
+      <dl class="fact-strip">
+        <div><dt>Specialty</dt><dd>Custom Embroidery</dd></div>
+        <div><dt>Address</dt><dd>Liberal, KS</dd></div>
+        <div><dt>Phone</dt><dd>(620) 624-2642</dd></div>
+        <div><dt>Reviews</dt><dd>&#9733; 5.0 on Google</dd></div>
+      </dl>
+    </section>
+
+    <section class="block svc-block" id="services">
+      <p class="kicker">What We Do</p>
+      <h2>Custom embroidery, built around you.</h2>
+      <p class="svc-intro">Fast turnaround and real attention to detail on every order.</p>
+      <div class="svc-rows">
+        <div class="svc-row"><h3>Custom Shirts & Hats</h3><p>Embroidered shirts and hats made to order for any occasion.</p></div>
+        <div class="svc-row"><h3>Business Apparel</h3><p>Branded apparel for local businesses, done with quick turnaround.</p></div>
+        <div class="svc-row"><h3>Design Consultation</h3><p>One-on-one help getting your design exactly right.</p></div>
+      </div>
+    </section>
+
+    <section class="block quote-block">
+      <blockquote>&ldquo;These guys are on top of customer service and listening to your needs! Very attentive to detail and quality.&rdquo;</blockquote>
+      <cite>Google Review &middot; 5.0 on Google</cite>
+    </section>
+
+    <section class="loc-block" id="location">
+      <div class="loc-half a">
+        <p class="label">Address</p>
+        <p class="big">642 S Kansas Ave<br>Liberal, KS 67901</p>
+        <a class="btn btn-outline" href="https://www.google.com/maps/search/?api=1&query=642%20S%20Kansas%20Ave%20Liberal%2C%20KS%2067901" target="_blank" rel="noopener">Get Directions</a>
+      </div>
+      <div class="loc-half b">
+        <p class="label">Hours &amp; Contact</p>
+        <p class="big" style="font-size:17px;">Call ahead for current hours.</p>
+        <a class="btn btn-primary" style="background:var(--accent);color:var(--onAccent);" href="tel:+16206242642">Call (620) 624-2642</a>
+      </div>
+    </section>
+
+    <section class="block end-block">
+      <h2>Have an order in mind?</h2>
+      <div class="cta-row">
+        <a class="btn btn-primary" style="background:var(--accent);color:var(--onAccent);" href="tel:+16206242642">Call (620) 624-2642</a>
+        <a class="btn btn-outline" href="https://www.google.com/maps/search/?api=1&query=642%20S%20Kansas%20Ave%20Liberal%2C%20KS%2067901" target="_blank" rel="noopener">Get Directions</a>
+      </div>
+    </section>
+
+    <footer class="f">
+      <span>&copy; 2026 Southwest Ranch Embroidery & Designs</span>
+      <span>642 S Kansas Ave, Liberal, KS 67901</span>
+    </footer>
+  </div>
+</div>
+<script>
+  var menuBtn = document.getElementById('menu-btn');
+  var mobileMenu = document.getElementById('mobile-menu');
+  var closeBtn = document.getElementById('menu-close');
+  if (menuBtn && mobileMenu) {
+    menuBtn.addEventListener('click', function () { mobileMenu.classList.add('open'); });
+    closeBtn.addEventListener('click', function () { mobileMenu.classList.remove('open'); });
+    mobileMenu.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { mobileMenu.classList.remove('open'); });
+    });
+  }
+</script>
+</body>
+</html>
