@@ -257,34 +257,19 @@ body {
 .spiral-intro .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; color: #fff; margin: 0 0 6px; }
 .spiral-intro h2 { font-family: 'Bodoni Moda', serif; font-size: clamp(22px, 3vw, 34px); color: #fff; margin: 0; }
 .spiral-field {
-  position: relative; width: min(94vw, 1180px); aspect-ratio: 16 / 11; margin: 0 auto;
-  perspective: 1500px;
+  position: relative; width: min(96vw, 1400px); aspect-ratio: 16 / 9; margin: 0 auto;
   background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
   background-size: 42px 42px;
-  border-radius: 18px;
+  border-radius: 18px; overflow: hidden; cursor: default;
 }
-.spiral-card {
-  position: absolute; transform-style: preserve-3d;
-  width: clamp(110px, 15vw, 220px); aspect-ratio: 4 / 3;
-  transform: translate(-50%, -50%) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(var(--sc));
-  border-radius: 12px; overflow: hidden;
-  background-size: cover; background-position: top center; background-color: #1a1a1a;
-  box-shadow: 0 22px 46px -16px rgba(0,0,0,0.75);
-  text-decoration: none; display: block; cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+#spiral3d { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.spiral-tip {
+  position: fixed; z-index: 90; transform: translate(-50%, -140%);
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.03em; white-space: nowrap;
+  background: rgba(5,5,10,0.9); border: 1px solid rgba(255,255,255,0.15); color: #fff8e2; padding: 5px 11px; border-radius: 5px;
+  opacity: 0; transition: opacity 0.15s ease; pointer-events: none;
 }
-.spiral-card:hover {
-  transform: translate(-50%, -50%) rotateX(0) rotateY(0) rotateZ(0) scale(1.15) !important;
-  z-index: 60 !important;
-  box-shadow: 0 30px 60px -14px rgba(0,0,0,0.85), 0 0 0 2px rgba(255,244,214,0.6);
-}
-.spiral-label {
-  position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 10px 8px;
-  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.03em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  background: linear-gradient(0deg, rgba(0,0,0,0.85), transparent); color: #fff8e2;
-  opacity: 0; transition: opacity 0.18s ease; pointer-events: none;
-}
-.spiral-card:hover .spiral-label { opacity: 1; }
+.spiral-tip.show { opacity: 1; }
 
 .hz-card {
   flex: 0 0 auto;
@@ -389,36 +374,169 @@ body {
   <div class="hint">&#8595; scroll down to see the spiral</div>
 </div>
 
-<div class="coord-readout" id="coordReadout">0000 X 0000 Y</div>
-
 <div class="spiral-section">
   <div class="spiral-intro">
     <p class="eyebrow">spiral</p>
-    <h2 class="serif">20 more, tilted and stacked.</h2>
+    <h2 class="serif">20 real sites, tilted and stacked.</h2>
   </div>
   <div class="spiral-field">
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/sulphur-farm-and-ranch.html" target="_blank" rel="noopener" style="left:89.7%;top:4.3%;--rz:-4.9deg;--ry:-8.9deg;--rx:1.9deg;--sc:1.01;z-index:10;background-image:url('card-shots/sulphur-farm-and-ranch.jpg')"><span class="spiral-label">Sulphur Farm and Ranch Center</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/dp-trophies.html" target="_blank" rel="noopener" style="left:79.0%;top:12.9%;--rz:-10.3deg;--ry:-9.0deg;--rx:0deg;--sc:0.87;z-index:11;background-image:url('card-shots/dp-trophies.jpg')"><span class="spiral-label">D&amp;P Trophies</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/hoysons-jewellers.html" target="_blank" rel="noopener" style="left:81.8%;top:18.1%;--rz:-6.2deg;--ry:2.9deg;--rx:2.5deg;--sc:0.86;z-index:12;background-image:url('card-shots/hoysons-jewellers.jpg')"><span class="spiral-label">Hoysons Jewellers</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/wallaces-stitchin-post.html" target="_blank" rel="noopener" style="left:78.4%;top:19.5%;--rz:-7.6deg;--ry:14.6deg;--rx:-1.3deg;--sc:0.88;z-index:13;background-image:url('card-shots/wallaces-stitchin-post.jpg')"><span class="spiral-label">Wallaces Stitchin Post</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/beccas-framing.html" target="_blank" rel="noopener" style="left:76.2%;top:26.4%;--rz:6.8deg;--ry:7.4deg;--rx:0.3deg;--sc:1.07;z-index:14;background-image:url('card-shots/beccas-framing.jpg')"><span class="spiral-label">Becca's Framing</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/magpie.html" target="_blank" rel="noopener" style="left:68.6%;top:32.9%;--rz:2.6deg;--ry:11.6deg;--rx:0.6deg;--sc:1.02;z-index:15;background-image:url('card-shots/magpie.jpg')"><span class="spiral-label">Magpie</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/the-perfect-fit.html" target="_blank" rel="noopener" style="left:60.7%;top:30.2%;--rz:-9.2deg;--ry:-8.6deg;--rx:-3.2deg;--sc:0.92;z-index:16;background-image:url('card-shots/the-perfect-fit.jpg')"><span class="spiral-label">The Perfect Fit</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/town-barber-shop.html" target="_blank" rel="noopener" style="left:58.4%;top:35.0%;--rz:-6.4deg;--ry:-7.5deg;--rx:3.5deg;--sc:1.00;z-index:17;background-image:url('card-shots/town-barber-shop.jpg')"><span class="spiral-label">Town Barber Shop</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/tilton-village-thrift.html" target="_blank" rel="noopener" style="left:52.1%;top:43.1%;--rz:-7.4deg;--ry:-3.9deg;--rx:3.9deg;--sc:1.00;z-index:18;background-image:url('card-shots/tilton-village-thrift.jpg')"><span class="spiral-label">Tilton Village Thrift &amp; Antiques</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/i-town-pawn.html" target="_blank" rel="noopener" style="left:54.2%;top:48.2%;--rz:6.1deg;--ry:-8.7deg;--rx:-3.7deg;--sc:0.93;z-index:19;background-image:url('card-shots/i-town-pawn.jpg')"><span class="spiral-label">I Town Pawn</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/frankies-awards.html" target="_blank" rel="noopener" style="left:44.5%;top:53.2%;--rz:8.3deg;--ry:-5.9deg;--rx:1.2deg;--sc:0.95;z-index:20;background-image:url('card-shots/frankies-awards.jpg')"><span class="spiral-label">Frankie's Awards</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/expression-wear.html" target="_blank" rel="noopener" style="left:43.5%;top:48.9%;--rz:-5.6deg;--ry:2.0deg;--rx:-1.9deg;--sc:0.99;z-index:21;background-image:url('card-shots/expression-wear.jpg')"><span class="spiral-label">Expression Wear</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/serendipity-engravers.html" target="_blank" rel="noopener" style="left:38.8%;top:52.1%;--rz:10.9deg;--ry:0.3deg;--rx:-3.3deg;--sc:0.87;z-index:22;background-image:url('card-shots/serendipity-engravers.jpg')"><span class="spiral-label">Serendipity Engravers</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/elite-embroidery.html" target="_blank" rel="noopener" style="left:37.5%;top:62.8%;--rz:-1.7deg;--ry:-14.0deg;--rx:-0.9deg;--sc:1.08;z-index:23;background-image:url('card-shots/elite-embroidery.jpg')"><span class="spiral-label">Elite Embroidery</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/cruisers-custom-embroidery.html" target="_blank" rel="noopener" style="left:37.7%;top:67.4%;--rz:-10.7deg;--ry:7.1deg;--rx:1.5deg;--sc:0.98;z-index:24;background-image:url('card-shots/cruisers-custom-embroidery.jpg')"><span class="spiral-label">Cruisers Custom Embroidery</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/satellite-workplaces.html" target="_blank" rel="noopener" style="left:29.7%;top:62.2%;--rz:-1.4deg;--ry:-1.5deg;--rx:3.6deg;--sc:1.05;z-index:25;background-image:url('card-shots/satellite-workplaces.jpg')"><span class="spiral-label">Satellite Workplaces</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/swiss-watch-service-centre.html" target="_blank" rel="noopener" style="left:24.0%;top:66.8%;--rz:9.1deg;--ry:11.9deg;--rx:-1.6deg;--sc:1.00;z-index:26;background-image:url('card-shots/swiss-watch-service-centre.jpg')"><span class="spiral-label">Swiss Watch Service Centre</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/sharpnr.html" target="_blank" rel="noopener" style="left:15.8%;top:77.6%;--rz:0.9deg;--ry:8.9deg;--rx:0.2deg;--sc:0.86;z-index:27;background-image:url('card-shots/sharpnr.jpg')"><span class="spiral-label">Sharpnr</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/silver-bow-trophy-engraving.html" target="_blank" rel="noopener" style="left:10.2%;top:83.4%;--rz:8.3deg;--ry:10.6deg;--rx:-1.5deg;--sc:0.87;z-index:28;background-image:url('card-shots/silver-bow-trophy-engraving.jpg')"><span class="spiral-label">Silver Bow Trophy &amp; Engraving</span></a>
-    <a class="spiral-card" href="https://websitefuture.github.io/previews/the-cotton-company.html" target="_blank" rel="noopener" style="left:17.4%;top:77.0%;--rz:-0.3deg;--ry:-13.8deg;--rx:2.1deg;--sc:1.03;z-index:29;background-image:url('card-shots/the-cotton-company.jpg')"><span class="spiral-label">The Cotton Company</span></a>
+    <canvas id="spiral3d"></canvas>
   </div>
+  <div class="spiral-tip" id="spiralTip"></div>
 </div>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+const SPIRAL_BUSINESSES = [
+  { name: "Sulphur Farm and Ranch Center", href: "https://websitefuture.github.io/previews/sulphur-farm-and-ranch.html", img: "card-shots/sulphur-farm-and-ranch.jpg" },
+  { name: "D&P Trophies", href: "https://websitefuture.github.io/previews/dp-trophies.html", img: "card-shots/dp-trophies.jpg" },
+  { name: "Hoysons Jewellers", href: "https://websitefuture.github.io/previews/hoysons-jewellers.html", img: "card-shots/hoysons-jewellers.jpg" },
+  { name: "Wallaces Stitchin Post", href: "https://websitefuture.github.io/previews/wallaces-stitchin-post.html", img: "card-shots/wallaces-stitchin-post.jpg" },
+  { name: "Becca's Framing", href: "https://websitefuture.github.io/previews/beccas-framing.html", img: "card-shots/beccas-framing.jpg" },
+  { name: "Magpie", href: "https://websitefuture.github.io/previews/magpie.html", img: "card-shots/magpie.jpg" },
+  { name: "The Perfect Fit", href: "https://websitefuture.github.io/previews/the-perfect-fit.html", img: "card-shots/the-perfect-fit.jpg" },
+  { name: "Town Barber Shop", href: "https://websitefuture.github.io/previews/town-barber-shop.html", img: "card-shots/town-barber-shop.jpg" },
+  { name: "Tilton Village Thrift & Antiques", href: "https://websitefuture.github.io/previews/tilton-village-thrift.html", img: "card-shots/tilton-village-thrift.jpg" },
+  { name: "I Town Pawn", href: "https://websitefuture.github.io/previews/i-town-pawn.html", img: "card-shots/i-town-pawn.jpg" },
+  { name: "Frankie's Awards", href: "https://websitefuture.github.io/previews/frankies-awards.html", img: "card-shots/frankies-awards.jpg" },
+  { name: "Expression Wear", href: "https://websitefuture.github.io/previews/expression-wear.html", img: "card-shots/expression-wear.jpg" },
+  { name: "Serendipity Engravers", href: "https://websitefuture.github.io/previews/serendipity-engravers.html", img: "card-shots/serendipity-engravers.jpg" },
+  { name: "Elite Embroidery", href: "https://websitefuture.github.io/previews/elite-embroidery.html", img: "card-shots/elite-embroidery.jpg" },
+  { name: "Cruisers Custom Embroidery", href: "https://websitefuture.github.io/previews/cruisers-custom-embroidery.html", img: "card-shots/cruisers-custom-embroidery.jpg" },
+  { name: "Satellite Workplaces", href: "https://websitefuture.github.io/previews/satellite-workplaces.html", img: "card-shots/satellite-workplaces.jpg" },
+  { name: "Swiss Watch Service Centre", href: "https://websitefuture.github.io/previews/swiss-watch-service-centre.html", img: "card-shots/swiss-watch-service-centre.jpg" },
+  { name: "Sharpnr", href: "https://websitefuture.github.io/previews/sharpnr.html", img: "card-shots/sharpnr.jpg" },
+  { name: "Silver Bow Trophy & Engraving", href: "https://websitefuture.github.io/previews/silver-bow-trophy-engraving.html", img: "card-shots/silver-bow-trophy-engraving.jpg" },
+  { name: "The Cotton Company", href: "https://websitefuture.github.io/previews/the-cotton-company.html", img: "card-shots/the-cotton-company.jpg" },
+];
+
+function mulberry32(seed) {
+  return function () {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+(function initSpiral() {
+  const field = document.querySelector('.spiral-field');
+  const canvas = document.getElementById('spiral3d');
+  const tip = document.getElementById('spiralTip');
+  if (!field || !canvas || !window.WebGLRenderingContext) return;
+
+  const rand = mulberry32(1337);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, field.clientWidth / field.clientHeight, 0.1, 100);
+  camera.position.set(0, 0, 11);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(field.clientWidth, field.clientHeight, false);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+  const key = new THREE.DirectionalLight(0xffffff, 1.1);
+  key.position.set(-4, 5, 7);
+  scene.add(key);
+  const rim = new THREE.DirectionalLight(0x88ffcc, 0.35);
+  rim.position.set(5, -3, -4);
+  scene.add(rim);
+
+  const loader = new THREE.TextureLoader();
+  const meshes = [];
+
+  SPIRAL_BUSINESSES.forEach((biz, i) => {
+    const t = i / (SPIRAL_BUSINESSES.length - 1);
+    const w = 2.6, h = 1.75;
+    const geo = new THREE.PlaneGeometry(w, h, 24, 16);
+    const pos = geo.attributes.position;
+    const bendAmp = 0.12 + rand() * 0.34;
+    const bendPhase = rand() * Math.PI;
+    for (let v = 0; v < pos.count; v++) {
+      const x = pos.getX(v);
+      const u = x / w + 0.5;
+      const z = Math.sin(Math.PI * u + bendPhase) * bendAmp;
+      pos.setZ(v, z);
+    }
+    geo.computeVertexNormals();
+
+    const tex = loader.load(biz.img);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.88, metalness: 0.04, side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(geo, mat);
+
+    const baseX = 5.4 - t * 10.8;
+    const baseY = 3.2 - t * 6.4;
+    mesh.position.set(
+      baseX + (rand() - 0.5) * 3.4,
+      baseY + (rand() - 0.5) * 2.4,
+      (rand() - 0.5) * 2.6
+    );
+    mesh.rotation.set((rand() - 0.5) * 0.3, (rand() - 0.5) * 0.9, (rand() - 0.5) * 0.7);
+    const scale = 0.55 + rand() * 0.85;
+    mesh.scale.set(scale, scale, scale);
+    mesh.userData = { href: biz.href, name: biz.name, phase: rand() * Math.PI * 2, baseRot: mesh.rotation.clone(), baseScale: scale };
+    scene.add(mesh);
+    meshes.push(mesh);
+  });
+
+  meshes.sort((a, b) => a.position.z - b.position.z);
+
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  let hovered = null;
+
+  function updatePointer(clientX, clientY) {
+    const r = canvas.getBoundingClientRect();
+    pointer.x = ((clientX - r.left) / r.width) * 2 - 1;
+    pointer.y = -((clientY - r.top) / r.height) * 2 + 1;
+  }
+
+  canvas.addEventListener('mousemove', (e) => {
+    updatePointer(e.clientX, e.clientY);
+    raycaster.setFromCamera(pointer, camera);
+    const hit = raycaster.intersectObjects(meshes)[0];
+    if (hit) {
+      hovered = hit.object;
+      canvas.style.cursor = 'pointer';
+      tip.textContent = hovered.userData.name;
+      tip.style.left = e.clientX + 'px';
+      tip.style.top = e.clientY + 'px';
+      tip.classList.add('show');
+    } else {
+      hovered = null;
+      canvas.style.cursor = 'default';
+      tip.classList.remove('show');
+    }
+  });
+  canvas.addEventListener('mouseleave', () => { hovered = null; tip.classList.remove('show'); canvas.style.cursor = 'default'; });
+  canvas.addEventListener('click', () => { if (hovered) window.open(hovered.userData.href, '_blank', 'noopener'); });
+
+  function onResize() {
+    const w = field.clientWidth, h = field.clientHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+  }
+  window.addEventListener('resize', onResize);
+
+  const clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    meshes.forEach((m) => {
+      const p = m.userData.phase;
+      m.rotation.x = m.userData.baseRot.x + Math.sin(t * 0.25 + p) * 0.04;
+      m.rotation.y = m.userData.baseRot.y + Math.cos(t * 0.2 + p) * 0.05;
+      const targetScale = m.userData.baseScale * (m === hovered ? 1.2 : 1);
+      m.scale.setScalar(THREE.MathUtils.lerp(m.scale.x, targetScale, 0.15));
+    });
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+</script>
 
 <div class="entries" id="entries">
   <div class="card" id="card0">
