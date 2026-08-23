@@ -445,6 +445,8 @@ function mulberry32(seed) {
 
   const loader = new THREE.TextureLoader();
   const meshes = [];
+  const group = new THREE.Group();
+  scene.add(group);
 
   SPIRAL_BUSINESSES.forEach((biz, i) => {
     const t = i / (SPIRAL_BUSINESSES.length - 1);
@@ -490,7 +492,7 @@ function mulberry32(seed) {
     const scale = 0.4 + rand() * rand() * 1.7;
     mesh.scale.set(scale, scale, scale);
     mesh.userData = { href: biz.href, name: biz.name, phase: rand() * Math.PI * 2, baseRot: mesh.rotation.clone(), baseScale: scale };
-    scene.add(mesh);
+    group.add(mesh);
     meshes.push(mesh);
   });
 
@@ -506,8 +508,37 @@ function mulberry32(seed) {
     pointer.y = -((clientY - r.top) / r.height) * 2 + 1;
   }
 
+  // Drag-to-pan across the field (the reference site pans a bounded area rather than
+  // sitting as one static frame) with momentum that keeps drifting after release, plus a
+  // gentle continuous parallax toward the cursor so the scene never feels fully still.
+  const panTarget = new THREE.Vector2(0, 0);
+  const panBounds = { x: 3.6, y: 2.4 };
+  let velocity = new THREE.Vector2(0, 0);
+  let isDragging = false;
+  let dragMoved = false;
+  let lastDrag = new THREE.Vector2(0, 0);
+  const DRAG_SCALE = 0.0042;
+
+  canvas.addEventListener('mousedown', (e) => {
+    isDragging = true; dragMoved = false;
+    lastDrag.set(e.clientX, e.clientY);
+    canvas.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      const dx = e.clientX - lastDrag.x, dy = e.clientY - lastDrag.y;
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) dragMoved = true;
+      panTarget.x = THREE.MathUtils.clamp(panTarget.x - dx * DRAG_SCALE, -panBounds.x, panBounds.x);
+      panTarget.y = THREE.MathUtils.clamp(panTarget.y + dy * DRAG_SCALE, -panBounds.y, panBounds.y);
+      velocity.set(-dx * DRAG_SCALE, dy * DRAG_SCALE);
+      lastDrag.set(e.clientX, e.clientY);
+    }
+  });
+  window.addEventListener('mouseup', () => { isDragging = false; canvas.style.cursor = hovered ? 'pointer' : 'default'; });
+
   canvas.addEventListener('mousemove', (e) => {
     updatePointer(e.clientX, e.clientY);
+    if (isDragging) return;
     raycaster.setFromCamera(pointer, camera);
     const hit = raycaster.intersectObjects(meshes)[0];
     if (hit) {
@@ -523,8 +554,8 @@ function mulberry32(seed) {
       tip.classList.remove('show');
     }
   });
-  canvas.addEventListener('mouseleave', () => { hovered = null; tip.classList.remove('show'); canvas.style.cursor = 'default'; });
-  canvas.addEventListener('click', () => { if (hovered) window.open(hovered.userData.href, '_blank', 'noopener'); });
+  canvas.addEventListener('mouseleave', () => { if (!isDragging) { hovered = null; tip.classList.remove('show'); canvas.style.cursor = 'default'; } });
+  canvas.addEventListener('click', () => { if (hovered && !dragMoved) window.open(hovered.userData.href, '_blank', 'noopener'); });
 
   function onResize() {
     const w = field.clientWidth, h = field.clientHeight;
@@ -545,6 +576,18 @@ function mulberry32(seed) {
       const targetScale = m.userData.baseScale * (m === hovered ? 1.2 : 1);
       m.scale.setScalar(THREE.MathUtils.lerp(m.scale.x, targetScale, 0.15));
     });
+
+    if (!isDragging) {
+      // momentum carries the pan after release, decaying to a stop
+      panTarget.x = THREE.MathUtils.clamp(panTarget.x + velocity.x, -panBounds.x, panBounds.x);
+      panTarget.y = THREE.MathUtils.clamp(panTarget.y + velocity.y, -panBounds.y, panBounds.y);
+      velocity.multiplyScalar(0.92);
+    }
+    // subtle continuous parallax toward the cursor, layered on top of the drag pan
+    const parallaxX = pointer.x * 0.35, parallaxY = pointer.y * 0.25;
+    group.position.x = THREE.MathUtils.lerp(group.position.x, -panTarget.x + parallaxX, 0.07);
+    group.position.y = THREE.MathUtils.lerp(group.position.y, -panTarget.y + parallaxY, 0.07);
+
     renderer.render(scene, camera);
   }
   animate();
