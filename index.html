@@ -249,6 +249,43 @@ body {
   75% { transform: translate(calc(-50% + var(--dx3)), calc(-50% + var(--dy3))); }
 }
 
+/* Spiral section: 20 real-site screenshots arranged along an Archimedean spiral
+   over a slowly-rotating conic-gradient glow, echoing the swirl on pacomepertant.com.
+   No iframes, no generated art -- just the same lightweight screenshots used in the
+   hz-card row, laid out along a spiral path instead of a straight scroll track. */
+.spiral-section { position: relative; background: #05050a; padding: 130px 24px 150px; overflow: hidden; }
+.spiral-intro { text-align: center; max-width: 640px; margin: 0 auto 56px; }
+.spiral-intro .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; color: #fff; margin: 0 0 6px; }
+.spiral-intro h2 { font-family: 'Bodoni Moda', serif; font-size: clamp(22px, 3vw, 34px); color: #fff; margin: 0; }
+.spiral-field { position: relative; width: min(92vw, 820px); aspect-ratio: 1 / 1; margin: 0 auto; }
+.spiral-glow {
+  position: absolute; inset: 6%; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 0deg, rgba(120,255,180,0) 0%, rgba(120,255,180,0.28) 30%, rgba(255,208,120,0.18) 55%, rgba(120,255,180,0) 80%);
+  filter: blur(38px);
+  animation: spiralSpin 22s linear infinite;
+}
+@keyframes spiralSpin { to { transform: rotate(360deg); } }
+.spiral-card {
+  position: absolute; transform: translate(-50%, -50%);
+  width: clamp(64px, 10.5vw, 118px); height: clamp(64px, 10.5vw, 118px);
+  border-radius: 50%; overflow: hidden; z-index: 2;
+  border: 2px solid rgba(255,244,214,0.35); background-size: cover; background-position: top center;
+  box-shadow: 0 0 0 4px rgba(5,5,10,0.6), 0 12px 30px -10px rgba(0,0,0,0.7);
+  text-decoration: none; display: block; cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, z-index 0s;
+}
+.spiral-card:hover {
+  transform: translate(-50%, -50%) scale(1.22); z-index: 5; border-color: #fff8e2;
+  box-shadow: 0 0 0 4px rgba(5,5,10,0.6), 0 0 26px rgba(255,244,214,0.55), 0 16px 34px -10px rgba(0,0,0,0.8);
+}
+.spiral-label {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.03em; white-space: nowrap;
+  background: rgba(5,5,10,0.88); border: 1px solid rgba(255,255,255,0.15); color: #fff8e2; padding: 4px 9px; border-radius: 5px;
+  opacity: 0; pointer-events: none; transition: opacity 0.18s ease;
+}
+.spiral-card:hover .spiral-label { opacity: 1; }
+
 .hz-card {
   flex: 0 0 auto;
   width: min(72vw, 860px);
@@ -289,8 +326,7 @@ body {
   position: absolute; inset: 0; z-index: 0;
   background: linear-gradient(180deg, rgba(10,10,10,0.10) 0%, rgba(10,10,10,0.38) 50%, rgba(10,10,10,0.72) 100%);
 }
-.poster-name { font-family: 'Bodoni Moda', serif; font-weight: 700; font-size: clamp(19px, 2.6vw, 30px); text-wrap: balance; }
-.poster-cat { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.72; }
+.poster-name, .poster-cat { display: none; } /* name/category already shown in .card-meta below -- showing them again over the screenshot just duplicated text and clashed with the real site's own heading in the image */
 .poster-play {
   margin-top: 4px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase;
   opacity: 0.85; border: 1px solid currentColor; border-radius: 999px; padding: 7px 16px;
@@ -357,7 +393,7 @@ body {
 
 <div class="entries" id="entries">
   <div class="card" id="card0">
-    <div class="frame" data-auto="1" data-src="https://websitefuture.github.io/previews/teasers/maw-bets.html" data-full-src="https://websitefuture.github.io/previews/maw-bets.html" data-title="Maw Bet's">
+    <div class="frame" data-src="https://websitefuture.github.io/previews/teasers/maw-bets.html" data-full-src="https://websitefuture.github.io/previews/maw-bets.html" data-title="Maw Bet's">
       <div class="poster" style="background:#D9A32C;color:#F5F3EC;background-image:url('card-shots/maw-bets.jpg')">
         <span class="poster-name">Maw Bet's</span>
         <span class="poster-cat">Family BBQ, Nauvoo AL</span>
@@ -375,7 +411,7 @@ body {
     </div>
   </div>
   <div class="card" id="card1">
-    <div class="frame" data-auto="1" data-src="https://websitefuture.github.io/previews/teasers/smalltown-tattoos.html" data-full-src="https://websitefuture.github.io/previews/smalltown-tattoos.html" data-title="Smalltown Tattoos">
+    <div class="frame" data-src="https://websitefuture.github.io/previews/teasers/smalltown-tattoos.html" data-full-src="https://websitefuture.github.io/previews/smalltown-tattoos.html" data-title="Smalltown Tattoos">
       <div class="poster" style="background:#C1352B;color:#F5F3EC;background-image:url('card-shots/smalltown-tattoos.jpg')">
         <span class="poster-name">Smalltown Tattoos</span>
         <span class="poster-cat">Tattoo &amp; Piercing Shop, Pikeville KY</span>
@@ -393,7 +429,7 @@ body {
     </div>
   </div>
   <div class="card" id="card2">
-    <div class="frame" data-auto="1" data-src="https://websitefuture.github.io/previews/teasers/small-town-supply.html" data-full-src="https://websitefuture.github.io/previews/small-town-supply.html" data-title="Small Town Supply">
+    <div class="frame" data-src="https://websitefuture.github.io/previews/teasers/small-town-supply.html" data-full-src="https://websitefuture.github.io/previews/small-town-supply.html" data-title="Small Town Supply">
       <div class="poster" style="background:#2F5D3A;color:#F5F3EC;background-image:url('card-shots/small-town-supply.jpg')">
         <span class="poster-name">Small Town Supply</span>
         <span class="poster-cat">Hardware &amp; Gift Store, Gouverneur NY</span>
@@ -605,39 +641,49 @@ body {
   </div>
 </div>
 
+<div class="spiral-section">
+  <div class="spiral-intro">
+    <p class="eyebrow">20 more, up close.</p>
+    <h2 class="serif">Real screenshots, no scrolling required.</h2>
+  </div>
+  <div class="spiral-field">
+    <div class="spiral-glow"></div>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/sulphur-farm-and-ranch.html" target="_blank" rel="noopener" style="left:59.0%;top:50.0%;background-image:url('card-shots/sulphur-farm-and-ranch.jpg')"><span class="spiral-label">Sulphur Farm and Ranch Center</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/dp-trophies.html" target="_blank" rel="noopener" style="left:57.1%;top:57.6%;background-image:url('card-shots/dp-trophies.jpg')"><span class="spiral-label">D&amp;P Trophies</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/hoysons-jewellers.html" target="_blank" rel="noopener" style="left:48.1%;top:61.7%;background-image:url('card-shots/hoysons-jewellers.jpg')"><span class="spiral-label">Hoysons Jewellers</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/wallaces-stitchin-post.html" target="_blank" rel="noopener" style="left:37.4%;top:57.3%;background-image:url('card-shots/wallaces-stitchin-post.jpg')"><span class="spiral-label">Wallaces Stitchin Post</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/beccas-framing.html" target="_blank" rel="noopener" style="left:33.9%;top:45.5%;background-image:url('card-shots/beccas-framing.jpg')"><span class="spiral-label">Becca's Framing</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/magpie.html" target="_blank" rel="noopener" style="left:42.5%;top:34.2%;background-image:url('card-shots/magpie.jpg')"><span class="spiral-label">Magpie</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/the-perfect-fit.html" target="_blank" rel="noopener" style="left:58.9%;top:32.8%;background-image:url('card-shots/the-perfect-fit.jpg')"><span class="spiral-label">The Perfect Fit</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/town-barber-shop.html" target="_blank" rel="noopener" style="left:71.8%;top:44.6%;background-image:url('card-shots/town-barber-shop.jpg')"><span class="spiral-label">Town Barber Shop</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/tilton-village-thrift.html" target="_blank" rel="noopener" style="left:70.4%;top:62.7%;background-image:url('card-shots/tilton-village-thrift.jpg')"><span class="spiral-label">Tilton Village Thrift &amp; Antiques</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/i-town-pawn.html" target="_blank" rel="noopener" style="left:53.1%;top:74.2%;background-image:url('card-shots/i-town-pawn.jpg')"><span class="spiral-label">I Town Pawn</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/frankies-awards.html" target="_blank" rel="noopener" style="left:30.7%;top:69.3%;background-image:url('card-shots/frankies-awards.jpg')"><span class="spiral-label">Frankie's Awards</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/expression-wear.html" target="_blank" rel="noopener" style="left:19.6%;top:49.1%;background-image:url('card-shots/expression-wear.jpg')"><span class="spiral-label">Expression Wear</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/serendipity-engravers.html" target="_blank" rel="noopener" style="left:29.7%;top:26.8%;background-image:url('card-shots/serendipity-engravers.jpg')"><span class="spiral-label">Serendipity Engravers</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/elite-embroidery.html" target="_blank" rel="noopener" style="left:56.2%;top:19.0%;background-image:url('card-shots/elite-embroidery.jpg')"><span class="spiral-label">Elite Embroidery</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/cruisers-custom-embroidery.html" target="_blank" rel="noopener" style="left:81.3%;top:33.2%;background-image:url('card-shots/cruisers-custom-embroidery.jpg')"><span class="spiral-label">Cruisers Custom Embroidery</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/satellite-workplaces.html" target="_blank" rel="noopener" style="left:86.1%;top:61.4%;background-image:url('card-shots/satellite-workplaces.jpg')"><span class="spiral-label">Satellite Workplaces</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/swiss-watch-service-centre.html" target="_blank" rel="noopener" style="left:64.9%;top:84.3%;background-image:url('card-shots/swiss-watch-service-centre.jpg')"><span class="spiral-label">Swiss Watch Service Centre</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/sharpnr.html" target="_blank" rel="noopener" style="left:30.6%;top:84.4%;background-image:url('card-shots/sharpnr.jpg')"><span class="spiral-label">Sharpnr</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/silver-bow-trophy-engraving.html" target="_blank" rel="noopener" style="left:7.1%;top:59.3%;background-image:url('card-shots/silver-bow-trophy-engraving.jpg')"><span class="spiral-label">Silver Bow Trophy &amp; Engraving</span></a>
+    <a class="spiral-card" href="https://websitefuture.github.io/previews/the-cotton-company.html" target="_blank" rel="noopener" style="left:12.8%;top:25.1%;background-image:url('card-shots/the-cotton-company.jpg')"><span class="spiral-label">The Cotton Company</span></a>
+  </div>
+</div>
+
 <div class="galaxy-section" id="galaxySection">
   <div class="galaxy-pin">
     <div class="galaxy-inner">
       <canvas id="starCanvas"></canvas>
       <div class="galaxy-intro">
-        <p class="eyebrow" style="color:#fff">11 more, out there.</p>
+        <p class="eyebrow" style="color:#fff">37 more, out there.</p>
         <h2 class="serif" style="color:#fff">Click one to go straight there.</h2>
       </div>
       <div class="floating-links">
-<a class="float-chip" href="https://websitefuture.github.io/previews/sulphur-farm-and-ranch.html" target="_blank" rel="noopener" style="top:50.1%;left:83.5%;--dx1:26px;--dy1:-11px;--dx2:-2px;--dy2:18px;--dx3:27px;--dy3:11px;animation-duration:10.3s;animation-delay:-7.0s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Sulphur Farm and Ranch Center</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/dp-trophies.html" target="_blank" rel="noopener" style="top:27.4%;left:23.1%;--dx1:26px;--dy1:16px;--dx2:26px;--dy2:2px;--dx3:11px;--dy3:12px;animation-duration:10.0s;animation-delay:-16.4s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">D&P Trophies</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/hoysons-jewellers.html" target="_blank" rel="noopener" style="top:73.5%;left:15.6%;--dx1:22px;--dy1:6px;--dx2:3px;--dy2:9px;--dx3:23px;--dy3:12px;animation-duration:11.7s;animation-delay:-10.4s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Hoysons Jewellers</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/wallaces-stitchin-post.html" target="_blank" rel="noopener" style="top:50.7%;left:53.2%;--dx1:-28px;--dy1:-15px;--dx2:-17px;--dy2:-19px;--dx3:3px;--dy3:22px;animation-duration:12.8s;animation-delay:-7.3s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Wallaces Stitchin Post</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/beccas-framing.html" target="_blank" rel="noopener" style="top:73.3%;left:38.3%;--dx1:-26px;--dy1:7px;--dx2:19px;--dy2:-13px;--dx3:5px;--dy3:-14px;animation-duration:10.0s;animation-delay:-12.9s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Becca's Framing</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/magpie.html" target="_blank" rel="noopener" style="top:39.6%;left:49.8%;--dx1:-9px;--dy1:-18px;--dx2:-26px;--dy2:1px;--dx3:-27px;--dy3:13px;animation-duration:13.2s;animation-delay:-9.9s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Magpie</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/the-perfect-fit.html" target="_blank" rel="noopener" style="top:38.6%;left:64.5%;--dx1:15px;--dy1:22px;--dx2:13px;--dy2:22px;--dx3:-22px;--dy3:8px;animation-duration:11.1s;animation-delay:-9.4s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">The Perfect Fit</span></a>
 <a class="float-chip" href="https://websitefuture.github.io/previews/victoria-market-communications.html" target="_blank" rel="noopener" style="top:61.4%;left:79.8%;--dx1:21px;--dy1:-11px;--dx2:3px;--dy2:18px;--dx3:12px;--dy3:6px;animation-duration:14.9s;animation-delay:-4.7s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Victoria Market Communications</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/town-barber-shop.html" target="_blank" rel="noopener" style="top:61.6%;left:27.2%;--dx1:22px;--dy1:22px;--dx2:12px;--dy2:-22px;--dx3:-18px;--dy3:-20px;animation-duration:14.5s;animation-delay:-5.5s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Town Barber Shop</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/tilton-village-thrift.html" target="_blank" rel="noopener" style="top:27.9%;left:38.3%;--dx1:8px;--dy1:-14px;--dx2:12px;--dy2:-20px;--dx3:12px;--dy3:18px;animation-duration:12.5s;animation-delay:-5.2s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Tilton Village Thrift & Antiques</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/i-town-pawn.html" target="_blank" rel="noopener" style="top:73.0%;left:60.9%;--dx1:8px;--dy1:18px;--dx2:-30px;--dy2:16px;--dx3:5px;--dy3:17px;animation-duration:14.7s;animation-delay:-9.4s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">I Town Pawn</span></a>
 <a class="float-chip" href="https://websitefuture.github.io/previews/silicon-valley-business-center.html" target="_blank" rel="noopener" style="top:61.9%;left:34.6%;--dx1:21px;--dy1:20px;--dx2:7px;--dy2:-19px;--dx3:15px;--dy3:-14px;animation-duration:12.0s;animation-delay:-13.1s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Silicon Valley Business Center</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/frankies-awards.html" target="_blank" rel="noopener" style="top:73.2%;left:30.6%;--dx1:-15px;--dy1:-6px;--dx2:-26px;--dy2:-4px;--dx3:-22px;--dy3:4px;animation-duration:12.7s;animation-delay:-6.2s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Frankie's Awards</span></a>
 <a class="float-chip" href="https://websitefuture.github.io/previews/staplemans-boots.html" target="_blank" rel="noopener" style="top:50.4%;left:60.9%;--dx1:-15px;--dy1:-19px;--dx2:21px;--dy2:-21px;--dx3:20px;--dy3:21px;animation-duration:12.4s;animation-delay:-16.6s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Staplemans</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/expression-wear.html" target="_blank" rel="noopener" style="top:28.1%;left:75.8%;--dx1:-26px;--dy1:-16px;--dx2:20px;--dy2:3px;--dx3:-4px;--dy3:-16px;animation-duration:11.9s;animation-delay:-14.5s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Expression Wear</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/serendipity-engravers.html" target="_blank" rel="noopener" style="top:61.6%;left:19.8%;--dx1:28px;--dy1:16px;--dx2:-21px;--dy2:-8px;--dx3:-19px;--dy3:-19px;animation-duration:13.8s;animation-delay:-8.7s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Serendipity Engravers</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/elite-embroidery.html" target="_blank" rel="noopener" style="top:73.2%;left:76.0%;--dx1:3px;--dy1:12px;--dx2:-23px;--dy2:11px;--dx3:-19px;--dy3:7px;animation-duration:14.4s;animation-delay:-9.1s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Elite Embroidery</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/cruisers-custom-embroidery.html" target="_blank" rel="noopener" style="top:62.2%;left:64.4%;--dx1:-12px;--dy1:11px;--dx2:-2px;--dy2:-10px;--dx3:-14px;--dy3:19px;animation-duration:12.4s;animation-delay:-12.4s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Cruisers Custom Embroidery</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/satellite-workplaces.html" target="_blank" rel="noopener" style="top:50.2%;left:23.5%;--dx1:-8px;--dy1:18px;--dx2:-8px;--dy2:6px;--dx3:8px;--dy3:-3px;animation-duration:12.3s;animation-delay:-0.8s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Satellite Workplaces</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/swiss-watch-service-centre.html" target="_blank" rel="noopener" style="top:50.3%;left:8.6%;--dx1:19px;--dy1:-3px;--dx2:-19px;--dy2:5px;--dx3:-20px;--dy3:-22px;animation-duration:13.6s;animation-delay:-2.4s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Swiss Watch Service Centre</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/sharpnr.html" target="_blank" rel="noopener" style="top:62.0%;left:86.9%;--dx1:-22px;--dy1:9px;--dx2:-30px;--dy2:19px;--dx3:11px;--dy3:-13px;animation-duration:11.8s;animation-delay:-17.2s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Sharpnr</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/silver-bow-trophy-engraving.html" target="_blank" rel="noopener" style="top:50.1%;left:45.8%;--dx1:-28px;--dy1:-18px;--dx2:2px;--dy2:-7px;--dx3:-4px;--dy3:-14px;animation-duration:12.6s;animation-delay:-3.4s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Silver Bow Trophy & Engraving</span></a>
 <a class="float-chip" href="https://websitefuture.github.io/previews/mcdermott-saddle-leatherwork.html" target="_blank" rel="noopener" style="top:39.2%;left:72.1%;--dx1:10px;--dy1:20px;--dx2:9px;--dy2:-14px;--dx3:-19px;--dy3:-16px;animation-duration:11.2s;animation-delay:-3.8s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">McDermott Saddle and Leatherwork</span></a>
-<a class="float-chip" href="https://websitefuture.github.io/previews/the-cotton-company.html" target="_blank" rel="noopener" style="top:61.8%;left:56.9%;--dx1:15px;--dy1:12px;--dx2:-23px;--dy2:22px;--dx3:-6px;--dy3:14px;animation-duration:12.3s;animation-delay:-17.9s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">The Cotton Company</span></a>
 <a class="float-chip" href="https://websitefuture.github.io/previews/the-brothers-gallery.html" target="_blank" rel="noopener" style="top:50.6%;left:68.4%;--dx1:-17px;--dy1:-7px;--dx2:1px;--dy2:8px;--dx3:6px;--dy3:15px;animation-duration:12.9s;animation-delay:-13.7s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">The Brothers Gallery</span></a>
 <a class="float-chip" href="https://websitefuture.github.io/previews/aigo-digital-repairs.html" target="_blank" rel="noopener" style="top:73.6%;left:83.4%;--dx1:13px;--dy1:18px;--dx2:-21px;--dy2:17px;--dx3:-26px;--dy3:-15px;animation-duration:14.4s;animation-delay:-12.4s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">AIGO Digital Repairs</span></a>
 <a class="float-chip" href="https://websitefuture.github.io/previews/falasco-feed.html" target="_blank" rel="noopener" style="top:27.7%;left:45.7%;--dx1:-28px;--dy1:20px;--dx2:-4px;--dy2:10px;--dx3:-29px;--dy3:11px;animation-duration:10.0s;animation-delay:-9.0s;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span class="chip-label">Falasco Feed</span></a>
