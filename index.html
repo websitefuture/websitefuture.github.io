@@ -454,9 +454,9 @@ function mulberry32(seed) {
   // user input needed. Position and rotation are both re-derived from the curve every
   // frame instead of being set once at creation.
   const LOOP_SECONDS = 130;
-  function curveX(t) { return Math.cos(t * Math.PI * 2) * 4.6; }
-  function curveY(t) { return Math.sin(t * Math.PI * 2) * 2.0; }
-  function curveZ(t) { return Math.sin(t * Math.PI * 2) * 2.2; }
+  function curveX(t) { return Math.cos(t * Math.PI * 2) * 2.3; }
+  function curveY(t) { return Math.sin(t * Math.PI * 2) * 1.5; }
+  function curveZ(t) { return Math.sin(t * Math.PI * 2) * 2.0; }
 
   SPIRAL_BUSINESSES.forEach((biz, i) => {
     const t = i / (SPIRAL_BUSINESSES.length - 1);
