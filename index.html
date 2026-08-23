@@ -466,15 +466,15 @@ function mulberry32(seed) {
     const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.88, metalness: 0.04, side: THREE.DoubleSide });
     const mesh = new THREE.Mesh(geo, mat);
 
-    const baseX = 5.4 - t * 10.8;
-    const baseY = 3.2 - t * 6.4;
+    const baseX = 4.6 - t * 9.2;
+    const baseY = 2.6 - t * 5.2;
     mesh.position.set(
-      baseX + (rand() - 0.5) * 3.4,
-      baseY + (rand() - 0.5) * 2.4,
-      (rand() - 0.5) * 2.6
+      baseX + (rand() - 0.5) * 5.6,
+      baseY + (rand() - 0.5) * 4.2,
+      (rand() - 0.5) * 3.4
     );
-    mesh.rotation.set((rand() - 0.5) * 0.3, (rand() - 0.5) * 0.9, (rand() - 0.5) * 0.7);
-    const scale = 0.55 + rand() * 0.85;
+    mesh.rotation.set((rand() - 0.5) * 0.34, (rand() - 0.5) * 1.0, (rand() - 0.5) * 0.8);
+    const scale = 0.4 + rand() * rand() * 1.7;
     mesh.scale.set(scale, scale, scale);
     mesh.userData = { href: biz.href, name: biz.name, phase: rand() * Math.PI * 2, baseRot: mesh.rotation.clone(), baseScale: scale };
     scene.add(mesh);
