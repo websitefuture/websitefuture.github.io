@@ -282,6 +282,12 @@ body {
   position: absolute; inset: 0; z-index: 1;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center; gap: 10px; padding: 24px;
+  background-size: cover; background-position: top center;
+}
+.poster::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(180deg, rgba(10,10,10,0.10) 0%, rgba(10,10,10,0.38) 50%, rgba(10,10,10,0.72) 100%);
 }
 .poster-name { font-family: 'Bodoni Moda', serif; font-weight: 700; font-size: clamp(19px, 2.6vw, 30px); text-wrap: balance; }
 .poster-cat { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.72; }
@@ -352,7 +358,7 @@ body {
 <div class="entries" id="entries">
   <div class="card" id="card0">
     <div class="frame" data-auto="1" data-src="https://websitefuture.github.io/previews/teasers/maw-bets.html" data-full-src="https://websitefuture.github.io/previews/maw-bets.html" data-title="Maw Bet's">
-      <div class="poster" style="background:#D9A32C;color:#17181A">
+      <div class="poster" style="background:#D9A32C;color:#F5F3EC;background-image:url('card-shots/maw-bets.jpg')">
         <span class="poster-name">Maw Bet's</span>
         <span class="poster-cat">Family BBQ, Nauvoo AL</span>
         <span class="poster-play">&#9654; View live site</span>
@@ -370,7 +376,7 @@ body {
   </div>
   <div class="card" id="card1">
     <div class="frame" data-auto="1" data-src="https://websitefuture.github.io/previews/teasers/smalltown-tattoos.html" data-full-src="https://websitefuture.github.io/previews/smalltown-tattoos.html" data-title="Smalltown Tattoos">
-      <div class="poster" style="background:#C1352B;color:#F5F3EC">
+      <div class="poster" style="background:#C1352B;color:#F5F3EC;background-image:url('card-shots/smalltown-tattoos.jpg')">
         <span class="poster-name">Smalltown Tattoos</span>
         <span class="poster-cat">Tattoo &amp; Piercing Shop, Pikeville KY</span>
         <span class="poster-play">&#9654; View live site</span>
@@ -388,7 +394,7 @@ body {
   </div>
   <div class="card" id="card2">
     <div class="frame" data-auto="1" data-src="https://websitefuture.github.io/previews/teasers/small-town-supply.html" data-full-src="https://websitefuture.github.io/previews/small-town-supply.html" data-title="Small Town Supply">
-      <div class="poster" style="background:#2F5D3A;color:#F5F3EC">
+      <div class="poster" style="background:#2F5D3A;color:#F5F3EC;background-image:url('card-shots/small-town-supply.jpg')">
         <span class="poster-name">Small Town Supply</span>
         <span class="poster-cat">Hardware &amp; Gift Store, Gouverneur NY</span>
         <span class="poster-play">&#9654; View live site</span>
@@ -417,7 +423,7 @@ body {
     <div class="hz-row" id="hzRow">
       <div class="hz-card">
         <div class="frame" data-src="https://websitefuture.github.io/previews/greenlees-bakery.html" data-title="Greenlee's Bakery">
-          <div class="poster" style="background:#A8562E;color:#F5F3EC">
+          <div class="poster" style="background:#A8562E;color:#F5F3EC;background-image:url('card-shots/greenlees-bakery.jpg')">
         <span class="poster-name">Greenlee's Bakery</span>
         <span class="poster-cat">Family Bakery, San Jose</span>
         <span class="poster-play">&#9654; View live site</span>
@@ -435,7 +441,7 @@ body {
       </div>
       <div class="hz-card">
         <div class="frame" data-src="https://websitefuture.github.io/previews/wheel-away-cycle-center.html" data-title="Wheel Away Cycle Center">
-          <div class="poster" style="background:#1F2326;color:#F5F3EC">
+          <div class="poster" style="background:#1F2326;color:#F5F3EC;background-image:url('card-shots/wheel-away-cycle-center.jpg')">
         <span class="poster-name">Wheel Away Cycle Center</span>
         <span class="poster-cat">Bike Shop, Campbell</span>
         <span class="poster-play">&#9654; View live site</span>
@@ -453,7 +459,7 @@ body {
       </div>
       <div class="hz-card">
         <div class="frame" data-src="https://websitefuture.github.io/previews/de-anza-appliance.html" data-title="De Anza Appliance">
-          <div class="poster" style="background:#2F6FED;color:#F5F3EC">
+          <div class="poster" style="background:#2F6FED;color:#F5F3EC;background-image:url('card-shots/de-anza-appliance.jpg')">
         <span class="poster-name">De Anza Appliance</span>
         <span class="poster-cat">Appliance Repair</span>
         <span class="poster-play">&#9654; View live site</span>
@@ -471,7 +477,7 @@ body {
       </div>
       <div class="hz-card">
         <div class="frame" data-src="https://websitefuture.github.io/previews/music-village.html" data-title="Music Village">
-          <div class="poster" style="background:#FF5C7A;color:#F5F3EC">
+          <div class="poster" style="background:#FF5C7A;color:#F5F3EC;background-image:url('card-shots/music-village.jpg')">
         <span class="poster-name">Music Village</span>
         <span class="poster-cat">Instruments, Lessons &amp; Repairs</span>
         <span class="poster-play">&#9654; View live site</span>
@@ -489,7 +495,7 @@ body {
       </div>
       <div class="hz-card">
         <div class="frame" data-src="https://websitefuture.github.io/previews/tire-outlet-auto-service.html" data-title="Tire Outlet Auto Service">
-          <div class="poster" style="background:#171717;color:#F5F3EC">
+          <div class="poster" style="background:#171717;color:#F5F3EC;background-image:url('card-shots/tire-outlet-auto-service.jpg')">
         <span class="poster-name">Tire Outlet Auto Service</span>
         <span class="poster-cat">Steering, Suspension &amp; Brakes</span>
         <span class="poster-play">&#9654; View live site</span>
@@ -507,7 +513,7 @@ body {
       </div>
       <div class="hz-card">
         <div class="frame" data-src="https://websitefuture.github.io/previews/campbell-vacuum-sewing.html" data-title="Campbell Vacuum & Sewing">
-          <div class="poster" style="background:#2F7A6C;color:#F5F3EC">
+          <div class="poster" style="background:#2F7A6C;color:#F5F3EC;background-image:url('card-shots/campbell-vacuum-sewing.jpg')">
         <span class="poster-name">Campbell Vacuum & Sewing</span>
         <span class="poster-cat">Vacuum &amp; Sewing Services</span>
         <span class="poster-play">&#9654; View live site</span>
@@ -525,7 +531,7 @@ body {
       </div>
       <div class="hz-card">
         <div class="frame" data-src="https://websitefuture.github.io/previews/golden-state-quilting.html" data-title="Golden State Quilting">
-          <div class="poster" style="background:#B5482F;color:#F5F3EC">
+          <div class="poster" style="background:#B5482F;color:#F5F3EC;background-image:url('card-shots/golden-state-quilting.jpg')">
         <span class="poster-name">Golden State Quilting</span>
         <span class="poster-cat">Fabric, Classes &amp; Quilting</span>
         <span class="poster-play">&#9654; View live site</span>
@@ -543,7 +549,7 @@ body {
       </div>
       <div class="hz-card">
         <div class="frame" data-src="https://websitefuture.github.io/previews/rex-cleaners.html" data-title="Rex Cleaners">
-          <div class="poster" style="background:#2F4A3C;color:#F5F3EC">
+          <div class="poster" style="background:#2F4A3C;color:#F5F3EC;background-image:url('card-shots/rex-cleaners.jpg')">
         <span class="poster-name">Rex Cleaners</span>
         <span class="poster-cat">Dry Cleaning Since 1934</span>
         <span class="poster-play">&#9654; View live site</span>
@@ -561,7 +567,7 @@ body {
       </div>
       <div class="hz-card">
         <div class="frame" data-src="https://websitefuture.github.io/previews/ko-kung-fu.html" data-title="KO Kung Fu">
-          <div class="poster" style="background:#D4A72C;color:#17181A">
+          <div class="poster" style="background:#D4A72C;color:#F5F3EC;background-image:url('card-shots/ko-kung-fu.jpg')">
         <span class="poster-name">KO Kung Fu</span>
         <span class="poster-cat">Bok Fu Do Martial Arts</span>
         <span class="poster-play">&#9654; View live site</span>
@@ -579,7 +585,7 @@ body {
       </div>
       <div class="hz-card">
         <div class="frame" data-src="https://websitefuture.github.io/previews/diamond-shoe-repair.html" data-title="Diamond Shoe Repair">
-          <div class="poster" style="background:#6B3A2C;color:#F5F3EC">
+          <div class="poster" style="background:#6B3A2C;color:#F5F3EC;background-image:url('card-shots/diamond-shoe-repair.jpg')">
         <span class="poster-name">Diamond Shoe Repair</span>
         <span class="poster-cat">Cobbler Since 1984</span>
         <span class="poster-play">&#9654; View live site</span>
