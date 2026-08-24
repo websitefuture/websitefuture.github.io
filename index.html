@@ -468,16 +468,19 @@ function mulberry32(seed) {
   // card has its own start offset t0 along u = t0 + progress, so scrolling carries the
   // whole set upward together, cards entering from below and exiting off the top, no
   // wrap/snap needed since u is never re-folded back on itself.
-  const TURNS = 1.6;
-  function curveX(u) { return Math.cos(u * Math.PI * 2 * TURNS) * 1.6; }
-  function curveZ(u) { return Math.sin(u * Math.PI * 2 * TURNS) * 1.6; }
-  function curveY(u) { return (u - 1) * 3.4; }
+  // Cards ride fixed left/center/right lanes (cycling every 3) instead of a shared
+  // continuous curve for X/Z -- a rotating curve inevitably lines two cards up on top
+  // of each other at some point in the cycle no matter how it's tuned; distinct lanes
+  // guarantee consecutive cards never land in the same horizontal spot.
+  const LANES_X = [-2.5, 0, 2.5];
+  const LANES_Z = [0.5, -0.9, 0.5];
+  function curveY(u) { return (u - 1) * 11; }
   function smoothstep(x, a, b) { const s = THREE.MathUtils.clamp((x - a) / (b - a), 0, 1); return s * s * (3 - 2 * s); }
 
   SPIRAL_BUSINESSES.forEach((biz, i) => {
     const t = i / (SPIRAL_BUSINESSES.length - 1);
-    const area = 1.5 + rand() * 0.5;
-    const cardAspect = 0.6 + rand() * 1.5; // <1 portrait .. >1 landscape, mixed like the reference
+    const area = 3.0 + rand() * 0.8;
+    const cardAspect = 0.75 + rand() * 0.7; // <1 portrait .. >1 landscape, kept modest so cards fit their lane
     const w = Math.sqrt(area * cardAspect), h = Math.sqrt(area / cardAspect);
     const geo = new THREE.PlaneGeometry(w, h, 24, 16);
     const pos = geo.attributes.position;
@@ -509,10 +512,12 @@ function mulberry32(seed) {
 
     const scale = 0.85 + rand() * 0.35;
     mesh.scale.set(scale, scale, scale);
+    const lane = i % 3;
     mesh.userData = {
       href: biz.href, name: biz.name,
       t0: t, phase: rand() * Math.PI * 2, baseScale: scale,
-      jitter: { x: (rand() - 0.5) * 1.7, y: (rand() - 0.5) * 1.9, rx: (rand() - 0.5) * 0.22, ry: (rand() - 0.5) * 0.5, rz: (rand() - 0.5) * 0.3 },
+      laneX: LANES_X[lane], laneZ: LANES_Z[lane],
+      jitter: { x: (rand() - 0.5) * 0.35, y: (rand() - 0.5) * 0.3, rx: (rand() - 0.5) * 0.14, ry: (rand() - 0.5) * 0.28, rz: (rand() - 0.5) * 0.22 },
     };
     group.add(mesh);
     meshes.push(mesh);
@@ -596,18 +601,17 @@ function mulberry32(seed) {
     meshes.forEach((m) => {
       const ud = m.userData;
       const u = ud.t0 + progress; // unwrapped -- each card travels once, no snap-back
-      const cx = curveX(u), cy = curveY(u), cz = curveZ(u);
-      const tangentAngle = Math.atan2(curveY(u + dt) - cy, curveX(u + dt) - cx);
-      m.position.set(cx + ud.jitter.x, cy + ud.jitter.y, cz);
+      const cx = ud.laneX + ud.jitter.x, cy = curveY(u), cz = ud.laneZ;
+      m.position.set(cx, cy + ud.jitter.y, cz);
       m.rotation.set(
         ud.jitter.rx + Math.sin(elapsed * 0.25 + ud.phase) * 0.03,
         ud.jitter.ry + Math.cos(elapsed * 0.2 + ud.phase) * 0.04,
-        tangentAngle * 0.25 + ud.jitter.rz
+        ud.jitter.rz
       );
       // cards fade and shrink in from below and fade out again above -- purely a
       // function of vertical position, so it's the act of scrolling that reveals and
       // then dismisses each one, not a timer
-      const yFade = 1 - smoothstep(Math.abs(cy), 1.0, 2.6);
+      const yFade = 1 - smoothstep(Math.abs(cy), 0.55, 2.4);
       const depthNudge = THREE.MathUtils.mapLinear(cz, -1.6, 1.6, 0.85, 1.15);
       const targetScale = ud.baseScale * (0.5 + yFade * 0.75) * depthNudge * (m === hovered ? 1.2 : 1);
       m.scale.setScalar(THREE.MathUtils.lerp(m.scale.x, targetScale, 0.15));
