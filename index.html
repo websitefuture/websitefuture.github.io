@@ -491,7 +491,7 @@ function mulberry32(seed) {
       t.needsUpdate = true;
     });
     tex.colorSpace = THREE.SRGBColorSpace;
-    const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.88, metalness: 0.04, side: THREE.DoubleSide });
+    const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.88, metalness: 0.04, side: THREE.DoubleSide, transparent: true });
     const mesh = new THREE.Mesh(geo, mat);
 
     const scale = 0.85 + rand() * 0.35;
@@ -549,7 +549,7 @@ function mulberry32(seed) {
     updatePointer(e.clientX, e.clientY);
     if (isDragging) return;
     raycaster.setFromCamera(pointer, camera);
-    const hit = raycaster.intersectObjects(meshes)[0];
+    const hit = raycaster.intersectObjects(meshes.filter((m) => m.material.opacity > 0.4))[0];
     if (hit) {
       hovered = hit.object;
       canvas.style.cursor = 'pointer';
@@ -590,11 +590,17 @@ function mulberry32(seed) {
         u.jitter.ry + Math.cos(elapsed * 0.2 + u.phase) * 0.05,
         tangentAngle * 0.2 + u.jitter.rz
       );
-      // cards nearer the camera (larger cz) read as bigger, like real depth, on top of
-      // their own base size and the hover bump
-      const depthScale = THREE.MathUtils.mapLinear(cz, -2.2, 2.2, 0.82, 1.18);
+      // Only the cards toward the front of the loop should read as prominent at any
+      // moment -- the reference shows a handful of clear cards, not all of them stacked
+      // at once. Cards toward the back shrink and fade out instead of just sitting
+      // behind others at full strength, so the visible set actually thins out.
+      const zNorm = THREE.MathUtils.clamp((cz + 1.9) / 3.8, 0, 1); // 0 = back of loop, 1 = front
+      const eased = Math.pow(zNorm, 5); // hard falloff -- only roughly the front quarter stays prominent
+      const depthScale = 0.28 + eased * 1.0;
       const targetScale = u.baseScale * depthScale * (m === hovered ? 1.2 : 1);
       m.scale.setScalar(THREE.MathUtils.lerp(m.scale.x, targetScale, 0.15));
+      const targetOpacity = THREE.MathUtils.clamp(0.04 + eased * 0.98, 0.04, 1);
+      m.material.opacity = THREE.MathUtils.lerp(m.material.opacity, targetOpacity, 0.1);
       m.renderOrder = cz;
     });
 
