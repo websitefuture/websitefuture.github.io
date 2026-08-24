@@ -591,22 +591,23 @@ void main() {
   // scrollOffset is a direct function of scroll progress through the pinned section
   // (0..1) instead of a free-running momentum sim -- progress 0 puts business #0 front
   // and center, progress 1 puts business #19 there, so scrolling the whole section
-  // guarantees every one of the 20 passes through center exactly once. A light lerp
-  // just smooths out Lenis's own per-frame steps; it settles to the target in a
-  // handful of frames, well within the time it takes to leave the pinned section.
-  let smoothedOffset = 0, prevTargetOffset = 0;
+  // guarantees every one of the 20 passes through center exactly once. The per-frame
+  // step toward that target is capped (MAX_STEP) so a noisy/out-of-order scroll
+  // reading -- Lenis correcting itself, a stray event -- can't snap the whole spiral;
+  // it can only nudge it, same as a real frame's worth of scrolling would.
+  let smoothedOffset = 0;
+  const MAX_STEP = 0.15;
 
   function animate() {
     requestAnimationFrame(animate);
 
-    const progress = window.__spiralProgress || 0;
+    const progress = THREE.MathUtils.clamp(window.__spiralProgress || 0, 0, 1);
     // the card facing the camera head-on sits at whichever integer step lands
     // closest to V=pi/2 (angleGap=0.85 rad -> that's step 2, not step 0), so the
     // offset is shifted by FRONT_STEP to put business #0 there at progress 0
     const targetOffset = progress * SPIRAL_BUSINESSES.length - FRONT_STEP;
-    smoothedOffset += (targetOffset - smoothedOffset) * 0.3;
-    const velocity = targetOffset - prevTargetOffset;
-    prevTargetOffset = targetOffset;
+    const step = THREE.MathUtils.clamp((targetOffset - smoothedOffset) * 0.3, -MAX_STEP, MAX_STEP);
+    smoothedOffset += step;
 
     meshes.forEach((m) => {
       const ud = m.userData;
@@ -622,7 +623,10 @@ void main() {
       ud.hoverProgress = THREE.MathUtils.lerp(ud.hoverProgress, ud.hoverTarget, 0.15);
       m.material.uniforms.uColorStrength.value = 0.55 * ud.hoverProgress;
       m.material.uniforms.uZoom.value = 1 + 0.05 * ud.hoverProgress;
-      m.material.uniforms.uScrollSpeed.value = THREE.MathUtils.clamp(velocity * 15, -2, 2);
+      // uScrollSpeed intentionally stays 0 -- the shear it drives in the vertex shader
+      // is tuned for the reference's raw wheel deltas, which stay tiny in normal use;
+      // any deterministic-progress signal large enough to be useful here also warps
+      // the geometry visibly, so it's off rather than fighting the clamp forever.
     });
 
     renderer.render(scene, camera);
