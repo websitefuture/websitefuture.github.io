@@ -520,6 +520,7 @@ void main() {
   const projectsCount = doubled.length;
   const centerIndex = Math.floor(projectsCount / 2);
   const verticalGap = 0.5, angleGap = 0.85, baseRadius = 2;
+  const FRONT_STEP = Math.round((Math.PI / 2) / angleGap); // integer step nearest camera-facing (V=pi/2)
 
   const meshes = doubled.map((biz, i) => {
     let mat;
@@ -587,32 +588,29 @@ void main() {
   }
   window.addEventListener('resize', onResize);
 
-  // scroll-velocity integrator copied from the reference's Controls class: wheelDeltaY
-  // eases toward targetWheelDeltaY, scrollOffset accumulates wheelDeltaY, and
-  // targetWheelDeltaY decays 10%/frame but is floored at a small non-zero speed in
-  // whatever direction it was last heading -- so motion never fully stops.
-  let wheelDeltaY = 0, targetWheelDeltaY = 0, scrollOffset = 0, wheelDirection = 1;
-  const minWheelSpeed = 0.002, easing = 0.1;
-  let prevProgress = window.__spiralProgress || 0;
+  // scrollOffset is a direct function of scroll progress through the pinned section
+  // (0..1) instead of a free-running momentum sim -- progress 0 puts business #0 front
+  // and center, progress 1 puts business #19 there, so scrolling the whole section
+  // guarantees every one of the 20 passes through center exactly once. A light lerp
+  // just smooths out Lenis's own per-frame steps; it settles to the target in a
+  // handful of frames, well within the time it takes to leave the pinned section.
+  let smoothedOffset = 0, prevTargetOffset = 0;
 
   function animate() {
     requestAnimationFrame(animate);
 
     const progress = window.__spiralProgress || 0;
-    const progressDelta = progress - prevProgress;
-    prevProgress = progress;
-    if (progressDelta !== 0) {
-      targetWheelDeltaY = THREE.MathUtils.clamp(targetWheelDeltaY + progressDelta * 0.3, -0.017, 0.017);
-      wheelDirection = progressDelta > 0 ? 1 : -1;
-    }
-    wheelDeltaY += (targetWheelDeltaY - wheelDeltaY) * easing;
-    scrollOffset += wheelDeltaY;
-    if (Math.abs(targetWheelDeltaY) < minWheelSpeed) targetWheelDeltaY = wheelDirection * minWheelSpeed;
-    targetWheelDeltaY *= 0.9;
+    // the card facing the camera head-on sits at whichever integer step lands
+    // closest to V=pi/2 (angleGap=0.85 rad -> that's step 2, not step 0), so the
+    // offset is shifted by FRONT_STEP to put business #0 there at progress 0
+    const targetOffset = progress * SPIRAL_BUSINESSES.length - FRONT_STEP;
+    smoothedOffset += (targetOffset - smoothedOffset) * 0.3;
+    const velocity = targetOffset - prevTargetOffset;
+    prevTargetOffset = targetOffset;
 
     meshes.forEach((m) => {
       const ud = m.userData;
-      let N = ud.index - scrollOffset;
+      let N = ud.index - smoothedOffset;
       N = ((N % projectsCount) + projectsCount) % projectsCount;
       const B = N - centerIndex;
       const V = B * angleGap;
@@ -624,7 +622,7 @@ void main() {
       ud.hoverProgress = THREE.MathUtils.lerp(ud.hoverProgress, ud.hoverTarget, 0.15);
       m.material.uniforms.uColorStrength.value = 0.55 * ud.hoverProgress;
       m.material.uniforms.uZoom.value = 1 + 0.05 * ud.hoverProgress;
-      m.material.uniforms.uScrollSpeed.value = wheelDeltaY;
+      m.material.uniforms.uScrollSpeed.value = THREE.MathUtils.clamp(velocity * 15, -2, 2);
     });
 
     renderer.render(scene, camera);
