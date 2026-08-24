@@ -252,15 +252,20 @@ body {
 /* Spiral section: matches the "spiral" gallery mode on pacomepertant.com -- rectangular
    project cards tilted in 3D and scattered along a loose diagonal cascade over a dark
    grid backdrop, not a literal circular spiral. 20 real-site screenshots, no iframes. */
-.spiral-section { position: relative; background: #0a0a0d; padding: 120px 24px 140px; overflow: hidden; }
-.spiral-intro { text-align: center; max-width: 640px; margin: 0 auto 88px; }
+.spiral-section { position: relative; background: #0a0a0d; }
+.spiral-intro { text-align: center; max-width: 640px; margin: 0 auto; padding: 120px 24px 0; }
 .spiral-intro .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; color: #fff; margin: 0 0 6px; }
 .spiral-intro h2 { font-family: 'Bodoni Moda', serif; font-size: clamp(22px, 3vw, 34px); color: #fff; margin: 0; }
+/* same pinned-tall-wrapper trick as .hz-track/.hz-pin -- scrolling through this section's
+   extra height is what drives the spiral upward, instead of it just auto-playing on a timer */
+.spiral-track { position: relative; height: 380vh; }
+.spiral-pin { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; pointer-events: none; }
 .spiral-field {
   position: relative; width: min(96vw, 1400px); aspect-ratio: 4 / 3; margin: 0 auto;
   background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
   background-size: 42px 42px;
   border-radius: 18px; overflow: hidden; cursor: default;
+  pointer-events: auto;
 }
 #spiral3d { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
 .spiral-tip {
@@ -378,11 +383,16 @@ body {
   <div class="spiral-intro">
     <p class="eyebrow">spiral</p>
     <h2 class="serif">20 real sites, tilted and stacked.</h2>
+    <p style="color:rgba(255,255,255,0.5);font-family:'JetBrains Mono',monospace;font-size:12px;margin-top:10px;">&#8595; scroll to move the spiral</p>
   </div>
-  <div class="spiral-field">
-    <canvas id="spiral3d"></canvas>
+  <div class="spiral-track" id="spiralTrack">
+    <div class="spiral-pin">
+      <div class="spiral-field">
+        <canvas id="spiral3d"></canvas>
+      </div>
+      <div class="spiral-tip" id="spiralTip"></div>
+    </div>
   </div>
-  <div class="spiral-tip" id="spiralTip"></div>
 </div>
 
 <script type="module">
@@ -453,13 +463,16 @@ function mulberry32(seed) {
   // orbits, cards drifting into view on one side and out the other, forever, with no
   // user input needed. Position and rotation are both re-derived from the curve every
   // frame instead of being set once at creation.
-  const LOOP_SECONDS = 130;
-  // an irregular blob loop (base ellipse plus a couple of smaller harmonics), not a
-  // perfect circle -- a clean ring reads as too geometric next to the reference's loose,
-  // organic scatter
-  function curveX(t) { return Math.cos(t * Math.PI * 2) * 1.7 + Math.cos(t * Math.PI * 6 + 1.1) * 0.45; }
-  function curveY(t) { return Math.sin(t * Math.PI * 2) * 1.9 + Math.sin(t * Math.PI * 4 + 0.6) * 0.45; }
-  function curveZ(t) { return Math.sin(t * Math.PI * 2 + 0.8) * 1.9; }
+  // A vertical helix, driven entirely by scroll position (window.__spiralProgress,
+  // 0..1, set by the pinned-scroll track in the main page script) -- not a timer. Each
+  // card has its own start offset t0 along u = t0 + progress, so scrolling carries the
+  // whole set upward together, cards entering from below and exiting off the top, no
+  // wrap/snap needed since u is never re-folded back on itself.
+  const TURNS = 1.6;
+  function curveX(u) { return Math.cos(u * Math.PI * 2 * TURNS) * 1.6; }
+  function curveZ(u) { return Math.sin(u * Math.PI * 2 * TURNS) * 1.6; }
+  function curveY(u) { return (u - 1) * 3.4; }
+  function smoothstep(x, a, b) { const s = THREE.MathUtils.clamp((x - a) / (b - a), 0, 1); return s * s * (3 - 2 * s); }
 
   SPIRAL_BUSINESSES.forEach((biz, i) => {
     const t = i / (SPIRAL_BUSINESSES.length - 1);
@@ -579,28 +592,27 @@ function mulberry32(seed) {
   function animate() {
     requestAnimationFrame(animate);
     const elapsed = clock.getElapsedTime();
+    const progress = window.__spiralProgress || 0;
     meshes.forEach((m) => {
-      const u = m.userData;
-      const t = (((u.t0 + elapsed / LOOP_SECONDS) % 1) + 1) % 1;
-      const cx = curveX(t), cy = curveY(t), cz = curveZ(t);
-      const tangentAngle = Math.atan2(curveY(t + dt) - cy, curveX(t + dt) - cx);
-      m.position.set(cx + u.jitter.x, cy + u.jitter.y, cz);
+      const ud = m.userData;
+      const u = ud.t0 + progress; // unwrapped -- each card travels once, no snap-back
+      const cx = curveX(u), cy = curveY(u), cz = curveZ(u);
+      const tangentAngle = Math.atan2(curveY(u + dt) - cy, curveX(u + dt) - cx);
+      m.position.set(cx + ud.jitter.x, cy + ud.jitter.y, cz);
       m.rotation.set(
-        u.jitter.rx + Math.sin(elapsed * 0.25 + u.phase) * 0.04,
-        u.jitter.ry + Math.cos(elapsed * 0.2 + u.phase) * 0.05,
-        tangentAngle * 0.2 + u.jitter.rz
+        ud.jitter.rx + Math.sin(elapsed * 0.25 + ud.phase) * 0.03,
+        ud.jitter.ry + Math.cos(elapsed * 0.2 + ud.phase) * 0.04,
+        tangentAngle * 0.25 + ud.jitter.rz
       );
-      // Only the cards toward the front of the loop should read as prominent at any
-      // moment -- the reference shows a handful of clear cards, not all of them stacked
-      // at once. Cards toward the back shrink and fade out instead of just sitting
-      // behind others at full strength, so the visible set actually thins out.
-      const zNorm = THREE.MathUtils.clamp((cz + 1.9) / 3.8, 0, 1); // 0 = back of loop, 1 = front
-      const eased = Math.pow(zNorm, 5); // hard falloff -- only roughly the front quarter stays prominent
-      const depthScale = 0.28 + eased * 1.0;
-      const targetScale = u.baseScale * depthScale * (m === hovered ? 1.2 : 1);
+      // cards fade and shrink in from below and fade out again above -- purely a
+      // function of vertical position, so it's the act of scrolling that reveals and
+      // then dismisses each one, not a timer
+      const yFade = 1 - smoothstep(Math.abs(cy), 1.0, 2.6);
+      const depthNudge = THREE.MathUtils.mapLinear(cz, -1.6, 1.6, 0.85, 1.15);
+      const targetScale = ud.baseScale * (0.5 + yFade * 0.75) * depthNudge * (m === hovered ? 1.2 : 1);
       m.scale.setScalar(THREE.MathUtils.lerp(m.scale.x, targetScale, 0.15));
-      const targetOpacity = THREE.MathUtils.clamp(0.04 + eased * 0.98, 0.04, 1);
-      m.material.opacity = THREE.MathUtils.lerp(m.material.opacity, targetOpacity, 0.1);
+      const targetOpacity = THREE.MathUtils.clamp(yFade, 0.03, 1);
+      m.material.opacity = THREE.MathUtils.lerp(m.material.opacity, targetOpacity, 0.15);
       m.renderOrder = cz;
     });
 
@@ -976,6 +988,12 @@ function mulberry32(seed) {
   var hzCardColors = HORIZONTAL_COLORS.map(hexToOklch);
   var hzTrackTop = 0, hzMaxScrollable = 1, hzMaxShift = 0, hzPinLeft = 0;
 
+  // pinned vertical spiral -- same trick, but progress just drives the Three.js scene
+  // (in its own module script) via window.__spiralProgress instead of moving a DOM row
+  var spiralTrack = document.getElementById('spiralTrack');
+  var spiralTrackTop = 0, spiralMaxScrollable = 1;
+  window.__spiralProgress = 0;
+
   function measure() {
     cardData.forEach(function (d) { d.offsetTop = d.el.offsetTop; d.height = d.el.offsetHeight; });
     if (hzTrack) {
@@ -985,6 +1003,11 @@ function mulberry32(seed) {
       hzMaxShift = Math.max(0, hzRow.scrollWidth - window.innerWidth);
       hzPinLeft = hzPin.getBoundingClientRect().left;
       hzCardData.forEach(function (d) { d.offsetLeft = d.el.offsetLeft; d.width = d.el.offsetWidth; });
+    }
+    if (spiralTrack) {
+      var vh2 = window.innerHeight;
+      spiralTrackTop = spiralTrack.getBoundingClientRect().top + window.scrollY;
+      spiralMaxScrollable = Math.max(1, spiralTrack.offsetHeight - vh2);
     }
   }
   window.addEventListener('resize', measure);
@@ -1081,6 +1104,12 @@ function mulberry32(seed) {
     });
   }
 
+  function renderSpiral(scrollY) {
+    if (!spiralTrack) return;
+    var scrolledIntoTrack = clamp(scrollY - spiralTrackTop, 0, spiralMaxScrollable);
+    window.__spiralProgress = scrolledIntoTrack / spiralMaxScrollable;
+  }
+
   function renderHz(scrollY) {
     if (!hzTrack) return;
     var scrolledIntoTrack = clamp(scrollY - hzTrackTop, 0, hzMaxScrollable);
@@ -1152,6 +1181,7 @@ function mulberry32(seed) {
       resetBlend();
       renderCards(rawY);
       renderHz(rawY);
+      renderSpiral(rawY);
       finishBlend();
       lastRenderedY = rawY;
     }
