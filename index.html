@@ -421,14 +421,79 @@ const SPIRAL_BUSINESSES = [
   { name: "The Cotton Company", href: "https://websitefuture.github.io/previews/the-cotton-company.html", img: "card-shots/the-cotton-company.jpg" },
 ];
 
-function mulberry32(seed) {
-  return function () {
-    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+// Ported directly from pacomepertant.com's own bundle (ProjectPlane / World / Controls
+// classes pulled from its downloaded _nuxt JS): a true helix, not a lane layout. Cards
+// sit at index-based angle/height around a fixed-radius circle -- angleGap radians and
+// verticalGap units apart -- so stepping through the (doubled, for a seamless loop)
+// project list traces a real corkscrew. A physics-style scroll integrator (velocity
+// eases toward a target, then decays back to a small non-zero floor) is copied verbatim
+// from their Controls class, which is why their spiral never fully stops -- it's fed
+// here by delta of our own page-scroll progress instead of raw wheel events.
+const VERT_SHADER = `varying vec2 vUv;
+#define PI 3.14159265359
+uniform float uScrollSpeed;
+void main() {
+  vec3 worldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+  vec3 newPosition = position;
+  newPosition.z = sin(uv.x * PI) * 0.2;
+  vec4 modelPosition = modelMatrix * vec4(newPosition, 1.0);
+  vec4 viewPosition = viewMatrix * modelPosition;
+  viewPosition.x += pow(worldPosition.y, 2.0) * 0.1;
+  viewPosition.x += sin(uv.y * PI) * uScrollSpeed * 2.0;
+  gl_Position = projectionMatrix * viewPosition;
+  vUv = uv;
+}`;
+
+const FRAG_SHADER = `uniform sampler2D uTexture;
+uniform float uColorStrength;
+uniform float uZoom;
+uniform vec2 uPlaneSizes;
+uniform vec2 uImageSizes;
+uniform float uRevealProgress;
+varying vec2 vUv;
+float roundedRectSDF(vec2 uv, vec2 size, float radius) {
+  vec2 d = abs(uv - 0.5) - size * 0.5 + radius;
+  return length(max(d, 0.0)) - radius;
 }
+void main() {
+  vec2 ratio = vec2(
+    min((uPlaneSizes.x / uPlaneSizes.y) / (uImageSizes.x / uImageSizes.y), 1.0),
+    min((uPlaneSizes.y / uPlaneSizes.x) / (uImageSizes.y / uImageSizes.x), 1.0)
+  );
+  vec2 uv = vec2(
+    vUv.x * ratio.x + (1.0 - ratio.x) * 0.5,
+    vUv.y * ratio.y + (1.0 - ratio.y) * 0.5
+  );
+  vec2 zoomedUv = (uv - 0.5) / uZoom + 0.5;
+  vec4 color;
+  if (gl_FrontFacing) {
+    color = texture2D(uTexture, zoomedUv);
+    color = mix(color, vec4(0.0, 0.0, 0.0, 1.0), uColorStrength);
+  } else {
+    float offset = 40.0 / 1024.0;
+    vec4 c = vec4(0.0);
+    c += texture2D(uTexture, uv + vec2(-offset, -offset)) * 1.0;
+    c += texture2D(uTexture, uv + vec2( 0.0,    -offset)) * 2.0;
+    c += texture2D(uTexture, uv + vec2( offset, -offset)) * 1.0;
+    c += texture2D(uTexture, uv + vec2(-offset,  0.0))   * 2.0;
+    c += texture2D(uTexture, uv)                         * 4.0;
+    c += texture2D(uTexture, uv + vec2( offset,  0.0))   * 2.0;
+    c += texture2D(uTexture, uv + vec2(-offset,  offset)) * 1.0;
+    c += texture2D(uTexture, uv + vec2( 0.0,     offset)) * 2.0;
+    c += texture2D(uTexture, uv + vec2( offset,  offset)) * 1.0;
+    c /= 16.0;
+    color = c;
+  }
+  float reveal = clamp(uRevealProgress, 0.0, 1.0);
+  vec2 revealSize = vec2(reveal);
+  float baseRadius = 0.05;
+  float radius = baseRadius * reveal;
+  float sdf = roundedRectSDF(vUv, revealSize, radius);
+  float edge = 0.002;
+  float alpha = 1.0 - smoothstep(0.0, edge, sdf);
+  alpha *= smoothstep(0.1, 1.0, uRevealProgress);
+  gl_FragColor = vec4(color.rgb, alpha);
+}`;
 
 (function initSpiral() {
   const field = document.querySelector('.spiral-field');
@@ -436,94 +501,53 @@ function mulberry32(seed) {
   const tip = document.getElementById('spiralTip');
   if (!field || !canvas || !window.WebGLRenderingContext) return;
 
-  const rand = mulberry32(1337);
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(42, field.clientWidth / field.clientHeight, 0.1, 100);
-  camera.position.set(0, 0, 11);
+  const camera = new THREE.PerspectiveCamera(
+    field.clientWidth < 900 ? 45 : 35,
+    field.clientWidth / field.clientHeight, 0.1, 100
+  );
+  camera.position.set(0, 0, 8);
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.setSize(field.clientWidth, field.clientHeight, false);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-  const key = new THREE.DirectionalLight(0xffffff, 1.1);
-  key.position.set(-4, 5, 7);
-  scene.add(key);
-  const rim = new THREE.DirectionalLight(0x88ffcc, 0.35);
-  rim.position.set(5, -3, -4);
-  scene.add(rim);
-
   const loader = new THREE.TextureLoader();
-  const meshes = [];
-  const group = new THREE.Group();
-  scene.add(group);
+  const sharedGeo = new THREE.PlaneGeometry(1, 1, 8, 8);
 
-  // The cards ride a closed loop, continuously in motion rather than sitting fixed --
-  // each card's t advances with elapsed time and wraps at 1, so the whole set slowly
-  // orbits, cards drifting into view on one side and out the other, forever, with no
-  // user input needed. Position and rotation are both re-derived from the curve every
-  // frame instead of being set once at creation.
-  // A vertical helix, driven entirely by scroll position (window.__spiralProgress,
-  // 0..1, set by the pinned-scroll track in the main page script) -- not a timer. Each
-  // card has its own start offset t0 along u = t0 + progress, so scrolling carries the
-  // whole set upward together, cards entering from below and exiting off the top, no
-  // wrap/snap needed since u is never re-folded back on itself.
-  // Cards ride fixed left/center/right lanes (cycling every 3) instead of a shared
-  // continuous curve for X/Z -- a rotating curve inevitably lines two cards up on top
-  // of each other at some point in the cycle no matter how it's tuned; distinct lanes
-  // guarantee consecutive cards never land in the same horizontal spot.
-  const LANES_X = [-2.5, 0, 2.5];
-  const LANES_Z = [0.5, -0.9, 0.5];
-  function curveY(u) { return (u - 1) * 11; }
-  function smoothstep(x, a, b) { const s = THREE.MathUtils.clamp((x - a) / (b - a), 0, 1); return s * s * (3 - 2 * s); }
+  // the project list is walked twice back-to-back so the index wrap (below) is seamless
+  const doubled = [...SPIRAL_BUSINESSES, ...SPIRAL_BUSINESSES];
+  const projectsCount = doubled.length;
+  const centerIndex = Math.floor(projectsCount / 2);
+  const verticalGap = 0.5, angleGap = 0.85, baseRadius = 2;
 
-  SPIRAL_BUSINESSES.forEach((biz, i) => {
-    const t = i / (SPIRAL_BUSINESSES.length - 1);
-    const area = 3.0 + rand() * 0.8;
-    const cardAspect = 0.75 + rand() * 0.7; // <1 portrait .. >1 landscape, kept modest so cards fit their lane
-    const w = Math.sqrt(area * cardAspect), h = Math.sqrt(area / cardAspect);
-    const geo = new THREE.PlaneGeometry(w, h, 24, 16);
-    const pos = geo.attributes.position;
-    const bendAmp = 0.12 + rand() * 0.34;
-    const bendPhase = rand() * Math.PI;
-    for (let v = 0; v < pos.count; v++) {
-      const x = pos.getX(v);
-      const u = x / w + 0.5;
-      const z = Math.sin(Math.PI * u + bendPhase) * bendAmp;
-      pos.setZ(v, z);
-    }
-    geo.computeVertexNormals();
-
-    const planeAspect = w / h;
+  const meshes = doubled.map((biz, i) => {
+    let mat;
     const tex = loader.load(biz.img, (t) => {
-      const imgAspect = t.image.width / t.image.height;
-      if (imgAspect > planeAspect) {
-        const s = planeAspect / imgAspect;
-        t.repeat.set(s, 1); t.offset.set((1 - s) / 2, 0);
-      } else {
-        const s = imgAspect / planeAspect;
-        t.repeat.set(1, s); t.offset.set(0, (1 - s) / 2);
-      }
-      t.needsUpdate = true;
+      if (mat) mat.uniforms.uImageSizes.value.set(t.image.width, t.image.height);
     });
     tex.colorSpace = THREE.SRGBColorSpace;
-    const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.88, metalness: 0.04, side: THREE.DoubleSide, transparent: true });
-    const mesh = new THREE.Mesh(geo, mat);
-
-    const scale = 0.85 + rand() * 0.35;
-    mesh.scale.set(scale, scale, scale);
-    const lane = i % 3;
-    mesh.userData = {
-      href: biz.href, name: biz.name,
-      t0: t, phase: rand() * Math.PI * 2, baseScale: scale,
-      laneX: LANES_X[lane], laneZ: LANES_Z[lane],
-      jitter: { x: (rand() - 0.5) * 0.35, y: (rand() - 0.5) * 0.3, rx: (rand() - 0.5) * 0.14, ry: (rand() - 0.5) * 0.28, rz: (rand() - 0.5) * 0.22 },
-    };
-    group.add(mesh);
-    meshes.push(mesh);
+    mat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: { value: tex },
+        uColorStrength: { value: 0 },
+        uZoom: { value: 1 },
+        uPlaneSizes: { value: new THREE.Vector2(1.7, 1) },
+        uImageSizes: { value: new THREE.Vector2(1, 1) },
+        uRevealProgress: { value: 1 },
+        uScrollSpeed: { value: 0 },
+      },
+      vertexShader: VERT_SHADER,
+      fragmentShader: FRAG_SHADER,
+      transparent: true,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(sharedGeo, mat);
+    mesh.scale.set(1.7, 1, 1);
+    mesh.userData = { href: biz.href, name: biz.name, index: i, hoverProgress: 0, hoverTarget: 0 };
+    scene.add(mesh);
+    return mesh;
   });
-
-  meshes.sort((a, b) => a.position.z - b.position.z);
 
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
@@ -534,40 +558,10 @@ function mulberry32(seed) {
     pointer.x = ((clientX - r.left) / r.width) * 2 - 1;
     pointer.y = -((clientY - r.top) / r.height) * 2 + 1;
   }
-
-  // Drag-to-pan across the field (the reference site pans a bounded area rather than
-  // sitting as one static frame) with momentum that keeps drifting after release, plus a
-  // gentle continuous parallax toward the cursor so the scene never feels fully still.
-  const panTarget = new THREE.Vector2(0, 0);
-  const panBounds = { x: 5.0, y: 3.2 };
-  let velocity = new THREE.Vector2(0, 0);
-  let isDragging = false;
-  let dragMoved = false;
-  let lastDrag = new THREE.Vector2(0, 0);
-  const DRAG_SCALE = 0.0042;
-
-  canvas.addEventListener('mousedown', (e) => {
-    isDragging = true; dragMoved = false;
-    lastDrag.set(e.clientX, e.clientY);
-    canvas.style.cursor = 'grabbing';
-  });
-  window.addEventListener('mousemove', (e) => {
-    if (isDragging) {
-      const dx = e.clientX - lastDrag.x, dy = e.clientY - lastDrag.y;
-      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) dragMoved = true;
-      panTarget.x = THREE.MathUtils.clamp(panTarget.x - dx * DRAG_SCALE, -panBounds.x, panBounds.x);
-      panTarget.y = THREE.MathUtils.clamp(panTarget.y + dy * DRAG_SCALE, -panBounds.y, panBounds.y);
-      velocity.set(-dx * DRAG_SCALE, dy * DRAG_SCALE);
-      lastDrag.set(e.clientX, e.clientY);
-    }
-  });
-  window.addEventListener('mouseup', () => { isDragging = false; canvas.style.cursor = hovered ? 'pointer' : 'default'; });
-
   canvas.addEventListener('mousemove', (e) => {
     updatePointer(e.clientX, e.clientY);
-    if (isDragging) return;
     raycaster.setFromCamera(pointer, camera);
-    const hit = raycaster.intersectObjects(meshes.filter((m) => m.material.opacity > 0.4))[0];
+    const hit = raycaster.intersectObjects(meshes)[0];
     if (hit) {
       hovered = hit.object;
       canvas.style.cursor = 'pointer';
@@ -581,55 +575,57 @@ function mulberry32(seed) {
       tip.classList.remove('show');
     }
   });
-  canvas.addEventListener('mouseleave', () => { if (!isDragging) { hovered = null; tip.classList.remove('show'); canvas.style.cursor = 'default'; } });
-  canvas.addEventListener('click', () => { if (hovered && !dragMoved) window.open(hovered.userData.href, '_blank', 'noopener'); });
+  canvas.addEventListener('mouseleave', () => { hovered = null; tip.classList.remove('show'); canvas.style.cursor = 'default'; });
+  canvas.addEventListener('click', () => { if (hovered) window.open(hovered.userData.href, '_blank', 'noopener'); });
 
   function onResize() {
     const w = field.clientWidth, h = field.clientHeight;
+    camera.fov = w < 900 ? 45 : 35;
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);
   }
   window.addEventListener('resize', onResize);
 
-  const clock = new THREE.Clock();
-  const dt = 0.001;
+  // scroll-velocity integrator copied from the reference's Controls class: wheelDeltaY
+  // eases toward targetWheelDeltaY, scrollOffset accumulates wheelDeltaY, and
+  // targetWheelDeltaY decays 10%/frame but is floored at a small non-zero speed in
+  // whatever direction it was last heading -- so motion never fully stops.
+  let wheelDeltaY = 0, targetWheelDeltaY = 0, scrollOffset = 0, wheelDirection = 1;
+  const minWheelSpeed = 0.002, easing = 0.1;
+  let prevProgress = window.__spiralProgress || 0;
+
   function animate() {
     requestAnimationFrame(animate);
-    const elapsed = clock.getElapsedTime();
+
     const progress = window.__spiralProgress || 0;
+    const progressDelta = progress - prevProgress;
+    prevProgress = progress;
+    if (progressDelta !== 0) {
+      targetWheelDeltaY = THREE.MathUtils.clamp(targetWheelDeltaY + progressDelta * 50, -2, 2);
+      wheelDirection = progressDelta > 0 ? 1 : -1;
+    }
+    wheelDeltaY += (targetWheelDeltaY - wheelDeltaY) * easing;
+    scrollOffset += wheelDeltaY;
+    if (Math.abs(targetWheelDeltaY) < minWheelSpeed) targetWheelDeltaY = wheelDirection * minWheelSpeed;
+    targetWheelDeltaY *= 0.9;
+
     meshes.forEach((m) => {
       const ud = m.userData;
-      const u = ud.t0 + progress; // unwrapped -- each card travels once, no snap-back
-      const cx = ud.laneX + ud.jitter.x, cy = curveY(u), cz = ud.laneZ;
-      m.position.set(cx, cy + ud.jitter.y, cz);
-      m.rotation.set(
-        ud.jitter.rx + Math.sin(elapsed * 0.25 + ud.phase) * 0.03,
-        ud.jitter.ry + Math.cos(elapsed * 0.2 + ud.phase) * 0.04,
-        ud.jitter.rz
-      );
-      // cards fade and shrink in from below and fade out again above -- purely a
-      // function of vertical position, so it's the act of scrolling that reveals and
-      // then dismisses each one, not a timer
-      const yFade = 1 - smoothstep(Math.abs(cy), 0.55, 2.4);
-      const depthNudge = THREE.MathUtils.mapLinear(cz, -1.6, 1.6, 0.85, 1.15);
-      const targetScale = ud.baseScale * (0.5 + yFade * 0.75) * depthNudge * (m === hovered ? 1.2 : 1);
-      m.scale.setScalar(THREE.MathUtils.lerp(m.scale.x, targetScale, 0.15));
-      const targetOpacity = THREE.MathUtils.clamp(yFade, 0.03, 1);
-      m.material.opacity = THREE.MathUtils.lerp(m.material.opacity, targetOpacity, 0.15);
-      m.renderOrder = cz;
-    });
+      let N = ud.index - scrollOffset;
+      N = ((N % projectsCount) + projectsCount) % projectsCount;
+      const B = N - centerIndex;
+      const V = B * angleGap;
+      const H = Math.cos(V), W = Math.sin(V);
+      m.position.set(H * baseRadius, B * verticalGap - 0.8, W * baseRadius);
+      m.rotation.set(0, -V + Math.PI / 2, 0);
 
-    if (!isDragging) {
-      // momentum carries the pan after release, decaying to a stop
-      panTarget.x = THREE.MathUtils.clamp(panTarget.x + velocity.x, -panBounds.x, panBounds.x);
-      panTarget.y = THREE.MathUtils.clamp(panTarget.y + velocity.y, -panBounds.y, panBounds.y);
-      velocity.multiplyScalar(0.92);
-    }
-    // subtle continuous parallax toward the cursor, layered on top of the drag pan
-    const parallaxX = pointer.x * 0.35, parallaxY = pointer.y * 0.25;
-    group.position.x = THREE.MathUtils.lerp(group.position.x, -panTarget.x + parallaxX, 0.07);
-    group.position.y = THREE.MathUtils.lerp(group.position.y, -panTarget.y + parallaxY, 0.07);
+      ud.hoverTarget = m === hovered ? 1 : 0;
+      ud.hoverProgress = THREE.MathUtils.lerp(ud.hoverProgress, ud.hoverTarget, 0.15);
+      m.material.uniforms.uColorStrength.value = 0.55 * ud.hoverProgress;
+      m.material.uniforms.uZoom.value = 1 + 0.05 * ud.hoverProgress;
+      m.material.uniforms.uScrollSpeed.value = wheelDeltaY;
+    });
 
     renderer.render(scene, camera);
   }
