@@ -257,7 +257,7 @@ body {
 .spiral-intro .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; color: #fff; margin: 0 0 6px; }
 .spiral-intro h2 { font-family: 'Bodoni Moda', serif; font-size: clamp(22px, 3vw, 34px); color: #fff; margin: 0; }
 .spiral-field {
-  position: relative; width: min(96vw, 1400px); aspect-ratio: 16 / 9; margin: 0 auto;
+  position: relative; width: min(96vw, 1400px); aspect-ratio: 4 / 3; margin: 0 auto;
   background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
   background-size: 42px 42px;
   border-radius: 18px; overflow: hidden; cursor: default;
@@ -454,13 +454,16 @@ function mulberry32(seed) {
   // user input needed. Position and rotation are both re-derived from the curve every
   // frame instead of being set once at creation.
   const LOOP_SECONDS = 130;
-  function curveX(t) { return Math.cos(t * Math.PI * 2) * 2.3; }
-  function curveY(t) { return Math.sin(t * Math.PI * 2) * 1.5; }
-  function curveZ(t) { return Math.sin(t * Math.PI * 2) * 2.0; }
+  // an irregular blob loop (base ellipse plus a couple of smaller harmonics), not a
+  // perfect circle -- a clean ring reads as too geometric next to the reference's loose,
+  // organic scatter
+  function curveX(t) { return Math.cos(t * Math.PI * 2) * 1.7 + Math.cos(t * Math.PI * 6 + 1.1) * 0.45; }
+  function curveY(t) { return Math.sin(t * Math.PI * 2) * 1.9 + Math.sin(t * Math.PI * 4 + 0.6) * 0.45; }
+  function curveZ(t) { return Math.sin(t * Math.PI * 2 + 0.8) * 1.9; }
 
   SPIRAL_BUSINESSES.forEach((biz, i) => {
     const t = i / (SPIRAL_BUSINESSES.length - 1);
-    const area = 2.4 + rand() * 0.6;
+    const area = 1.5 + rand() * 0.5;
     const cardAspect = 0.6 + rand() * 1.5; // <1 portrait .. >1 landscape, mixed like the reference
     const w = Math.sqrt(area * cardAspect), h = Math.sqrt(area / cardAspect);
     const geo = new THREE.PlaneGeometry(w, h, 24, 16);
@@ -496,7 +499,7 @@ function mulberry32(seed) {
     mesh.userData = {
       href: biz.href, name: biz.name,
       t0: t, phase: rand() * Math.PI * 2, baseScale: scale,
-      jitter: { x: (rand() - 0.5) * 0.7, y: (rand() - 0.5) * 0.6, rx: (rand() - 0.5) * 0.22, ry: (rand() - 0.5) * 0.5, rz: (rand() - 0.5) * 0.25 },
+      jitter: { x: (rand() - 0.5) * 1.7, y: (rand() - 0.5) * 1.9, rx: (rand() - 0.5) * 0.22, ry: (rand() - 0.5) * 0.5, rz: (rand() - 0.5) * 0.3 },
     };
     group.add(mesh);
     meshes.push(mesh);
