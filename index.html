@@ -588,24 +588,27 @@ void main() {
   }
   window.addEventListener('resize', onResize);
 
-  // scrollOffset is a direct function of scroll progress through the pinned section
-  // (0..1) instead of a free-running momentum sim -- progress 0 puts business #0 front
-  // and center, progress 1 puts business #19 there, so scrolling the whole section
-  // guarantees every one of the 20 passes through center exactly once. The per-frame
-  // step toward that target is capped (MAX_STEP) so a noisy/out-of-order scroll
-  // reading -- Lenis correcting itself, a stray event -- can't snap the whole spiral;
-  // it can only nudge it, same as a real frame's worth of scrolling would.
-  let smoothedOffset = 0;
+  // scrollOffset is scroll progress through the pinned section (0..1) PLUS a slow
+  // constant ambient drift -- progress 0 puts business #0 front and center, progress 1
+  // puts business #19 there, so scrolling the whole section still guarantees every one
+  // of the 20 passes through center. The ambient term rides on top so the spiral keeps
+  // gently drifting even at rest (matching the reference's "never fully stops" feel)
+  // without weakening that guarantee -- it only ever adds forward motion, never less.
+  // The per-frame step toward that combined target is capped (MAX_STEP) so a noisy
+  // scroll reading can only nudge the spiral, never snap it.
+  let smoothedOffset = 0, ambientOffset = 0;
   const MAX_STEP = 0.15;
+  const AMBIENT_SPEED = 0.003; // ~110s of idle time to drift a full 20-card cycle
 
   function animate() {
     requestAnimationFrame(animate);
 
+    ambientOffset += AMBIENT_SPEED;
     const progress = THREE.MathUtils.clamp(window.__spiralProgress || 0, 0, 1);
     // the card facing the camera head-on sits at whichever integer step lands
     // closest to V=pi/2 (angleGap=0.85 rad -> that's step 2, not step 0), so the
     // offset is shifted by FRONT_STEP to put business #0 there at progress 0
-    const targetOffset = progress * SPIRAL_BUSINESSES.length - FRONT_STEP;
+    const targetOffset = progress * SPIRAL_BUSINESSES.length - FRONT_STEP + ambientOffset;
     const step = THREE.MathUtils.clamp((targetOffset - smoothedOffset) * 0.3, -MAX_STEP, MAX_STEP);
     smoothedOffset += step;
 
