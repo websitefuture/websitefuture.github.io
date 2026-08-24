@@ -602,7 +602,7 @@ void main() {
     const progressDelta = progress - prevProgress;
     prevProgress = progress;
     if (progressDelta !== 0) {
-      targetWheelDeltaY = THREE.MathUtils.clamp(targetWheelDeltaY + progressDelta * 2.5, -0.15, 0.15);
+      targetWheelDeltaY = THREE.MathUtils.clamp(targetWheelDeltaY + progressDelta * 0.9, -0.05, 0.05);
       wheelDirection = progressDelta > 0 ? 1 : -1;
     }
     wheelDeltaY += (targetWheelDeltaY - wheelDeltaY) * easing;
